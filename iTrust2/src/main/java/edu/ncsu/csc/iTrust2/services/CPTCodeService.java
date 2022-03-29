@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.ncsu.csc.iTrust2.forms.CPTCodeForm;
 import edu.ncsu.csc.iTrust2.models.CPTCode;
 import edu.ncsu.csc.iTrust2.repositories.CPTCodeRepository;
 
@@ -43,5 +44,25 @@ public class CPTCodeService extends Service<CPTCode, Long> {
      */
     public List<CPTCode> findByIsArchived ( final boolean isArchived ) {
         return repository.findByIsArchived( isArchived );
+    }
+
+    /**
+     * Builds a CPT Code from a form.
+     *
+     * @param the
+     *            form with the information to build the CPT Code
+     * @return the CPT Code that was built from the form
+     */
+    public CPTCode build ( final CPTCodeForm form ) {
+        final CPTCode cpt = new CPTCode();
+        cpt.setCode( form.getCode() );
+        cpt.setCost( form.getCost() );
+        cpt.setDescription( form.getDescription() );
+        cpt.setIsArchived( form.getIsArchived() );
+        cpt.setTimeRangeMax( form.getTimeRangeMax() );
+        cpt.setTimeRangeMin( form.getTimeRangeMin() );
+        cpt.setVersion( form.getVersion() );
+        cpt.setId( form.getId() );
+        return cpt;
     }
 }
