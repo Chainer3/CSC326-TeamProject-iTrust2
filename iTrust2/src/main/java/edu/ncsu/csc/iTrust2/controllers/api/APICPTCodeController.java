@@ -2,6 +2,8 @@ package edu.ncsu.csc.iTrust2.controllers.api;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,9 +14,23 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import edu.ncsu.csc.iTrust2.forms.CPTCodeForm;
+import edu.ncsu.csc.iTrust2.models.CPTCode;
+import edu.ncsu.csc.iTrust2.models.enums.TransactionType;
+import edu.ncsu.csc.iTrust2.services.CPTCodeService;
+import edu.ncsu.csc.iTrust2.utils.LoggerUtil;
+
 @RestController
 @SuppressWarnings ( { "rawtypes", "unchecked" } )
 public class APICPTCodeController extends APIController {
+
+    /** LoggerUtil */
+    @Autowired
+    private LoggerUtil     loggerUtil;
+
+    /** CPT Code service */
+    @Autowired
+    private CPTCodeService cptService;
 
     /**
      * Adds a new CPT code to the system.
@@ -26,7 +42,18 @@ public class APICPTCodeController extends APIController {
     @PreAuthorize ( "hasAnyRole('ROLE_BILLING')" )
     @PostMapping ( BASE_PATH + "/cptcodes" )
     public ResponseEntity addCode ( @RequestBody final CPTCodeForm form ) {
-
+        try {
+            final CPTCode c = null; // cptService.build(form);
+            cptService.save( c );
+            loggerUtil.log( TransactionType.CPT_CREATE, LoggerUtil.currentUser(),
+                    "Created CPT code with id " + c.getId() );
+            return new ResponseEntity( c, HttpStatus.OK );
+        }
+        catch ( final Exception e ) {
+            loggerUtil.log( TransactionType.CPT_CREATE, LoggerUtil.currentUser(), "Failed to create prescription" );
+            return new ResponseEntity( errorResponse( "Could not save the prescription: " + e.getMessage() ),
+                    HttpStatus.BAD_REQUEST );
+        }
     }
 
     /**
@@ -38,8 +65,17 @@ public class APICPTCodeController extends APIController {
      */
     @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_BILLING')" )
     @GetMapping ( BASE_PATH + "/cptcodes/{code}" )
-    public CPTCode getCode ( @PathVariable final Long code ) {
-        return null;
+    public ResponseEntity getCode ( @PathVariable final Long code ) {
+        final CPTCode c = cptService.findByCode( code );
+
+        if ( c == null ) {
+            loggerUtil.log( TransactionType.CPT_VIEW, LoggerUtil.currentUser(), "Failed to find CPT code " + code );
+            return new ResponseEntity( errorResponse( "No CPT code found for " + code ), HttpStatus.NOT_FOUND );
+        }
+        else {
+            loggerUtil.log( TransactionType.CPT_VIEW, LoggerUtil.currentUser(), "Viewed CPT code  " + code );
+            return new ResponseEntity( c, HttpStatus.OK );
+        }
     }
 
     /**
@@ -50,7 +86,9 @@ public class APICPTCodeController extends APIController {
     @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_BILLING')" )
     @GetMapping ( BASE_PATH + "/cptcodes/" )
     public List<CPTCode> getCodes () {
-
+        // Return all CPT codes in system
+        loggerUtil.log( TransactionType.CPT_VIEW, LoggerUtil.currentUser(), "User viewed a list of all CPT codes" );
+        return cptService.findAll();
     }
 
     /**
@@ -60,8 +98,11 @@ public class APICPTCodeController extends APIController {
      */
     @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_BILLING')" )
     @GetMapping ( BASE_PATH + "/cptarchive/" )
-    public List<CPTCode> getArchiveCodes () {
-
+    public List<CPTCode> getArchivedCodes () {
+        // Return all CPT codes in system
+        loggerUtil.log( TransactionType.CPT_VIEW, LoggerUtil.currentUser(),
+                "User viewed a list of all archived CPT codes" );
+        return cptService.findByIsArchived( true );
     }
 
     /**
@@ -74,7 +115,20 @@ public class APICPTCodeController extends APIController {
     @PreAuthorize ( "hasAnyRole('ROLE_BILLING')" )
     @DeleteMapping ( BASE_PATH + "/cptcodes/{code}" )
     public ResponseEntity archiveCode ( @PathVariable final Long code ) {
-
+        final CPTCode c = cptService.findByCode( code );
+        if ( c == null ) {
+            return new ResponseEntity( errorResponse( "No CPT code found matching " + code ), HttpStatus.NOT_FOUND );
+        }
+        try {
+            cptService.delete( c );
+            loggerUtil.log( TransactionType.CPT_ARCHIVE, LoggerUtil.currentUser(), "Archived CPT code " + code );
+            return new ResponseEntity( code, HttpStatus.OK );
+        }
+        catch ( final Exception e ) {
+            loggerUtil.log( TransactionType.CPT_ARCHIVE, LoggerUtil.currentUser(), "Failed to archive CPT code" );
+            return new ResponseEntity( errorResponse( "Failed to archive CPT code: " + e.getMessage() ),
+                    HttpStatus.BAD_REQUEST );
+        }
     }
 
     /**
@@ -89,6 +143,22 @@ public class APICPTCodeController extends APIController {
     @PreAuthorize ( "hasAnyRole('ROLE_BILLING')" )
     @PutMapping ( BASE_PATH + "/cptcodes/{code}" )
     public ResponseEntity editCode ( @PathVariable final Long code, @RequestBody final CPTCodeForm form ) {
-
+        try {
+            final CPTCode c = null; // cptService.build( form );
+            final CPTCode saved = cptService.findByCode( c.getCode() );
+            if ( saved == null ) {
+                loggerUtil.log( TransactionType.CPT_EDIT, LoggerUtil.currentUser(),
+                        "No CPT code found matching " + c.getCode() );
+                return new ResponseEntity( errorResponse( "No CPT code found matching " + c.getCode() ),
+                        HttpStatus.NOT_FOUND );
+            }
+            cptService.save( c );
+            loggerUtil.log( TransactionType.CPT_EDIT, LoggerUtil.currentUser(), "Edited CPT code " + c.getCode() );
+            return new ResponseEntity( c, HttpStatus.OK );
+        }
+        catch ( final Exception e ) {
+            return new ResponseEntity( errorResponse( "Failed to update CPT code: " + e.getMessage() ),
+                    HttpStatus.BAD_REQUEST );
+        }
     }
 }
