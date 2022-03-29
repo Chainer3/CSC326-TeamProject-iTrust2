@@ -43,7 +43,7 @@ public class APICPTCodeController extends APIController {
     @PostMapping ( BASE_PATH + "/cptcodes" )
     public ResponseEntity addCode ( @RequestBody final CPTCodeForm form ) {
         try {
-            final CPTCode c = null; // cptService.build(form);
+            final CPTCode c = cptService.build( form );
             cptService.save( c );
             loggerUtil.log( TransactionType.CPT_CREATE, LoggerUtil.currentUser(),
                     "Created CPT code with id " + c.getId() );
@@ -144,7 +144,7 @@ public class APICPTCodeController extends APIController {
     @PutMapping ( BASE_PATH + "/cptcodes/{code}" )
     public ResponseEntity editCode ( @PathVariable final Long code, @RequestBody final CPTCodeForm form ) {
         try {
-            final CPTCode c = null; // cptService.build( form );
+            final CPTCode c = cptService.build( form );
             final CPTCode saved = cptService.findByCode( c.getCode() );
             if ( saved == null ) {
                 loggerUtil.log( TransactionType.CPT_EDIT, LoggerUtil.currentUser(),
