@@ -20,6 +20,12 @@ import edu.ncsu.csc.iTrust2.models.enums.TransactionType;
 import edu.ncsu.csc.iTrust2.services.CPTCodeService;
 import edu.ncsu.csc.iTrust2.utils.LoggerUtil;
 
+/**
+ * Provides REST endpoints that deal with CPT codes. Exposes functionality to
+ * add, edit, fetch, and archive CPT codes.
+ *
+ * @author Zach Harris
+ */
 @RestController
 @SuppressWarnings ( { "rawtypes", "unchecked" } )
 public class APICPTCodeController extends APIController {
