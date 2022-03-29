@@ -2,6 +2,10 @@ package edu.ncsu.csc.iTrust2.models;
 
 import java.util.Objects;
 
+
+import javax.persistence.Entity;
+
+
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -17,7 +21,10 @@ import edu.ncsu.csc.iTrust2.forms.CPTCodeForm;
  * @author Leah Whaley
  *
  */
-public class CPTCode {
+
+@Entity
+public class CPTCode extends DomainObject {
+
 
     /**
      * ID of this CPTCode
@@ -149,6 +156,7 @@ public class CPTCode {
      *
      * @return the id of the CPT code
      */
+    @Override
     public Long getId () {
         return id;
     }
