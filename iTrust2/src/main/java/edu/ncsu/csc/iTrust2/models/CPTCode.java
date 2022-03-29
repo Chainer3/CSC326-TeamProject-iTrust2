@@ -20,7 +20,6 @@ import edu.ncsu.csc.iTrust2.forms.CPTCodeForm;
  */
 @Entity
 public class CPTCode extends DomainObject {
-
     /**
      * ID of this CPTCode
      */
