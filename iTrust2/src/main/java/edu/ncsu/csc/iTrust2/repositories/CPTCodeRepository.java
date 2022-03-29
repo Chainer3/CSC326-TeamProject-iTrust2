@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import edu.ncsu.csc.iTrust2.models.OfficeVisit;
+import edu.ncsu.csc.iTrust2.models.CPTCode;
 
 /**
  * This interface provides direct interactions with the database
@@ -23,25 +23,12 @@ public interface CPTCodeRepository extends JpaRepository<CPTCode, Long> {
     public CPTCode findByCode ( long code );
 
     /**
-     * This method returns a list of CPT codes added to an office visit.
+     * This method returns a list of CPT codes based on the archive status of a
+     * CPT code
      *
-     * @param v
-     *            Office visit being looked into
-     * @return a list of CPT codes that were added to the office visit.
+     * @param isArchived
+     *            Archive status being searched for
+     * @return a list of CPT codes with that status
      */
-    public List<CPTCode> findByOfficeVisit ( OfficeVisit v );
-
-    /**
-     * This method returns all the active CPT codes in the program
-     *
-     * @return all of the CPT codes in the program
-     */
-    public List<CPTCode> findAllNotArchived ();
-
-    /**
-     * This method returns all the archived CPT codes in the program
-     *
-     * @return all of the archived CPT codes in the program
-     */
-    public List<CPTCode> findAllArchived ();
+    public List<CPTCode> findByIsArchived ( boolean isArchived );
 }

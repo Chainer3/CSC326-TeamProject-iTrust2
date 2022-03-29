@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.ncsu.csc.iTrust2.models.OfficeVisit;
+import edu.ncsu.csc.iTrust2.models.CPTCode;
 import edu.ncsu.csc.iTrust2.repositories.CPTCodeRepository;
 
 @Component
@@ -34,34 +34,14 @@ public class CPTCodeService extends Service<CPTCode, Long> {
     }
 
     /**
-     * This method asks the repository to return a list of CPT codes added to an
-     * office visit.
+     * This method asks the repository to return all the active or inactive CPT
+     * codes in the program
      *
-     * @param v
-     *            Office visit being looked into
-     * @return a list of CPT codes that were added to the office visit.
+     * @param isArchived
+     *            Archive status to look for
+     * @return all of the CPT codes in the program with a certain archive status
      */
-    public List<CPTCode> findByOfficeVisit ( final OfficeVisit v ) {
-        return repository.findByOfficeVisit( v );
-    }
-
-    /**
-     * This method asks the repository to return all the active CPT codes in the
-     * program
-     *
-     * @return all of the CPT codes in the program
-     */
-    public List<CPTCode> findAllNotArchived () {
-        return repository.findAllNotArchived();
-    }
-
-    /**
-     * This method asks the repository to return all the archived CPT codes in
-     * the program
-     *
-     * @return all of the archived CPT codes in the program
-     */
-    public List<CPTCode> findAllArchived () {
-        return repository.findAllArchived();
+    public List<CPTCode> findByIsArchived ( final boolean isArchived ) {
+        return repository.findByIsArchived( isArchived );
     }
 }
