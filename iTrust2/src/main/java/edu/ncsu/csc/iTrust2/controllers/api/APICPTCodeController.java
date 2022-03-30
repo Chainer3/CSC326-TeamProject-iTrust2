@@ -126,7 +126,8 @@ public class APICPTCodeController extends APIController {
             return new ResponseEntity( errorResponse( "No CPT code found matching " + code ), HttpStatus.NOT_FOUND );
         }
         try {
-            cptService.delete( c );
+            c.setIsArchived( true );
+            cptService.save( c );
             loggerUtil.log( TransactionType.CPT_ARCHIVE, LoggerUtil.currentUser(), "Archived CPT code " + code );
             return new ResponseEntity( code, HttpStatus.OK );
         }
@@ -151,13 +152,14 @@ public class APICPTCodeController extends APIController {
     public ResponseEntity editCode ( @PathVariable final Long code, @RequestBody final CPTCodeForm form ) {
         try {
             final CPTCode c = cptService.build( form );
-            final CPTCode saved = cptService.findByCode( c.getCode() );
+            final CPTCode saved = cptService.findByCode( code );
             if ( saved == null ) {
                 loggerUtil.log( TransactionType.CPT_EDIT, LoggerUtil.currentUser(),
                         "No CPT code found matching " + c.getCode() );
                 return new ResponseEntity( errorResponse( "No CPT code found matching " + c.getCode() ),
                         HttpStatus.NOT_FOUND );
             }
+            c.setId( saved.getId() );
             cptService.save( c );
             loggerUtil.log( TransactionType.CPT_EDIT, LoggerUtil.currentUser(), "Edited CPT code " + c.getCode() );
             return new ResponseEntity( c, HttpStatus.OK );
