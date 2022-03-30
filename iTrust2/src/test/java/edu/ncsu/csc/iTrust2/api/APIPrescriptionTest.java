@@ -136,7 +136,7 @@ public class APIPrescriptionTest {
                         .content( TestUtils.asJsonString( form2 ) ) )
                 .andExpect( status().isOk() ).andReturn().getResponse().getContentAsString();
         final Prescription p2 = TestUtils.gson().fromJson( content2, Prescription.class );
-        final PrescriptionForm p2Form = new PrescriptionForm( p1 );
+        final PrescriptionForm p2Form = new PrescriptionForm( p2 );
         assertEquals( form1.getDrug(), p2Form.getDrug() );
         assertEquals( form1.getDosage(), p2Form.getDosage() );
         assertEquals( form1.getRenewals(), p2Form.getRenewals() );
@@ -163,9 +163,7 @@ public class APIPrescriptionTest {
         assertEquals( p1.getDosage(), edited.getDosage() );
 
         // Get single prescription
-        final String getContent = mvc
-                .perform( get( "/api/v1/prescriptions" ).contentType( MediaType.APPLICATION_JSON )
-                        .content( TestUtils.asJsonString( new PrescriptionForm( p1 ) ) ) )
+        final String getContent = mvc.perform( get( "/api/v1/prescriptions/" + p1.getId() ) )
                 .andExpect( status().isOk() ).andReturn().getResponse().getContentAsString();
         final Prescription fetched = TestUtils.gson().fromJson( getContent, Prescription.class );
         assertEquals( p1.getId(), fetched.getId() );
