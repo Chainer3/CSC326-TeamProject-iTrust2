@@ -164,7 +164,7 @@ public class APIPrescriptionTest {
 
         // Get single prescription
         final String getContent = mvc
-                .perform( put( "/api/v1/prescriptions" ).contentType( MediaType.APPLICATION_JSON )
+                .perform( get( "/api/v1/prescriptions" ).contentType( MediaType.APPLICATION_JSON )
                         .content( TestUtils.asJsonString( new PrescriptionForm( p1 ) ) ) )
                 .andExpect( status().isOk() ).andReturn().getResponse().getContentAsString();
         final Prescription fetched = TestUtils.gson().fromJson( getContent, Prescription.class );
