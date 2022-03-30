@@ -137,12 +137,12 @@ public class APIPrescriptionTest {
                 .andExpect( status().isOk() ).andReturn().getResponse().getContentAsString();
         final Prescription p2 = TestUtils.gson().fromJson( content2, Prescription.class );
         final PrescriptionForm p2Form = new PrescriptionForm( p2 );
-        assertEquals( form1.getDrug(), p2Form.getDrug() );
-        assertEquals( form1.getDosage(), p2Form.getDosage() );
-        assertEquals( form1.getRenewals(), p2Form.getRenewals() );
-        assertEquals( form1.getPatient(), p2Form.getPatient() );
-        assertEquals( form1.getStartDate(), p2Form.getStartDate() );
-        assertEquals( form1.getEndDate(), p2Form.getEndDate() );
+        assertEquals( form2.getDrug(), p2Form.getDrug() );
+        assertEquals( form2.getDosage(), p2Form.getDosage() );
+        assertEquals( form2.getRenewals(), p2Form.getRenewals() );
+        assertEquals( form2.getPatient(), p2Form.getPatient() );
+        assertEquals( form2.getStartDate(), p2Form.getStartDate() );
+        assertEquals( form2.getEndDate(), p2Form.getEndDate() );
 
         // Verify prescriptions have been added
         final String allPrescriptionContent = mvc.perform( get( "/api/v1/prescriptions" ) ).andExpect( status().isOk() )
