@@ -108,7 +108,7 @@
 			
 			
 			self.updateTable = function() {
-				$http.get("/iTrust2/api/v1/cptcodes").then(function (response) {
+				$http.get("/iTrust2/api/v1/cptcodes/").then(function (response) {
 					self.cpts = response.data;
 			/* 		if(self.cpts.length > 0){
 						self.isPatient = self.logs[0].isPatient;
@@ -120,4 +120,6 @@
 				});	
 		    }
 			self.updateTable();
-		})						
+		})		
+    	</script>
+		

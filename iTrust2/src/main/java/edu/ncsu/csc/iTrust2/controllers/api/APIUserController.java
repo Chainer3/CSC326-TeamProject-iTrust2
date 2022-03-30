@@ -67,9 +67,12 @@ public class APIUserController extends APIController {
     /** Constant for vaccinator role */
     private static final String       ROLE_VACCINATOR = "ROLE_VACCINATOR";
 
+    /** Constant for billing role */
+    private static final String       ROLE_BILLING    = "ROLE_BILLING";
+
     /** All roles */
     private static final List<String> ALL_ROLES       = List.of( ROLE_ADMIN, ROLE_PATIENT, ROLE_HCP, ROLE_ER,
-            ROLE_LABTECH, ROLE_VIROLOGIST, ROLE_OD, ROLE_OPH, ROLE_VACCINATOR );
+            ROLE_LABTECH, ROLE_VIROLOGIST, ROLE_OD, ROLE_OPH, ROLE_VACCINATOR, ROLE_BILLING );
 
     /** LoggerUtil */
     @Autowired
