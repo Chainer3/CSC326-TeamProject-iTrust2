@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Component;
 
+import edu.ncsu.csc.iTrust2.forms.CPTCodeForm;
 import edu.ncsu.csc.iTrust2.forms.OfficeVisitForm;
 import edu.ncsu.csc.iTrust2.forms.PrescriptionForm;
 import edu.ncsu.csc.iTrust2.models.AppointmentRequest;
@@ -79,6 +80,12 @@ public class OfficeVisitService extends Service<OfficeVisit, Long> {
      */
     @Autowired
     private DiagnosisService            diagnosisService;
+
+    /**
+     * CPTCode service
+     */
+    @Autowired
+    private CPTCodeService              cptCodeService;
 
     @Override
     protected JpaRepository<OfficeVisit, Long> getRepository () {
@@ -190,6 +197,12 @@ public class OfficeVisitService extends Service<OfficeVisit, Long> {
         final List<PrescriptionForm> ps = ovf.getPrescriptions();
         if ( ps != null ) {
             ov.setPrescriptions( ps.stream().map( prescriptionService::build ).collect( Collectors.toList() ) );
+        }
+
+        final List<CPTCodeForm> cpt = ovf.getCPTCodes();
+
+        if ( cpt != null ) {
+            ov.setCPTCodes( cpt.stream().map( cptCodeService::build ).collect( Collectors.toList() ) );
         }
 
         final Patient p = (Patient) ov.getPatient();
