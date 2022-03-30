@@ -75,6 +75,18 @@
                         }
                         return err.join(". ");
                     }
+                    
+                    /* Method for checking added CPT Codes for validity */
+                    var checkValidCPTCode = function (b) {
+                    	var err = [];
+                    	if (b.isArchived) {
+                    		err.push("CPT Code is archived");
+                    	}
+                    	if (!b.code) {
+                    		err.push("CPT Code must be associated with a cpt code");
+                    	}
+                    	return err.join(". ");
+                    }
 
                     $scope.three = false;
                     $scope.threeAndUp = false;
@@ -162,6 +174,12 @@
                         function (response) {
                             $scope.icdcodes = response.data;
                         });
+                    
+                    /** Getting a list of CPT Codes */
+                    $http.get("/iTrust2/api/v1/cptcodes").then(
+                    	function (response) {
+                    		$scope.cptcodes = response.data;
+                    	});
 
                     /*Getting a list of laboratory procedures*/
                     $http.get("/iTrust2/api/v1/personnel/getbyroles/ROLE_LABTECH").then(
@@ -404,6 +422,7 @@
                                 $scope.visit.prescriptions.forEach(function (p) {
                                     p.patient = $scope.visit.patient;
                                 });
+                                $scope.visit.cptCodes = $scope.bills;
 
                                 $scope.visit.labProcedures = $scope.procedures;
                                 
@@ -429,6 +448,7 @@
 
                     $scope.noteEntry = "";
                     $scope.codeEntry = "";
+                
 
                     $scope.drugEntry = "";
                     $scope.dosageEntry = "";
@@ -442,6 +462,9 @@
 
                     $scope.procedure = {};
                     $scope.procedures = [];
+                    
+                    $scope.cptEntry = "";
+                    $scope.cptNoteEntry = "";
 
                     // Clears local variables for diagnosis form
                     function resetDiagnosisForm() {
@@ -457,6 +480,13 @@
                         $scope.endEntry = "";
                         $scope.renewalEntry = "";
                     }
+                    
+                    // Clears local variables for CPT Form
+                    function resetCPTForm() {
+                    	$scope.cptNoteEntry = "";
+                    	$scope.cptEntry = "";
+                    }
+                    
 
                     // Capture each diagnosis into an array
                     $scope.diagnoses = [];
@@ -467,6 +497,8 @@
                             note: $scope.noteEntry,
                             code: $scope.codeEntry.code
                         }
+                        console.log($scope.codeEntry);
+                        console.log(d);
                         var err = checkValidDiagnosis(d);
                         if (err) {
                             $scope.errorMsg = err;
@@ -482,6 +514,33 @@
                         if(!$scope.eyediagnoses.includes($scope.codeEntry))
                         	$scope.eyediagnoses.push($scope.codeEntry);
                         resetDiagnosisForm();
+                    }
+                    
+                    // Capture each CPT Code into an array.
+                    $scope.bills = [];
+                    $scope.fillBills = function() {
+                    	
+                    	$scope.errorMsg = "";
+                    	//var b = {
+                    		//code: $scope.cptEntry.code
+                    	//}
+                    	var b = $scope.cptEntry;
+                    	var err = checkValidCPTCode(b);
+                    	if (err) {
+                    		$scope.errorMsg = err;
+                    		$scope.message = "";
+                    	}
+                    	else {
+                        	$scope.bills.push(b);
+                    		resetCPTForm();
+                    	}
+                    	//if (err) {
+                    		//$scope.errorMsg = err;
+                    		//$scope.message = "";
+                    	//} else {
+                    		//$scope.bills.push(b);
+                    		//resetCPTForm();
+                    	//}
                     }
 
                     //capture each prescription into an array
@@ -507,6 +566,8 @@
                             resetPrescriptionForm();
                         }
                     }
+                    
+                    
 
                     /*Adding a procedure to Office visit*/
                     $scope.addProcedure = function () {
@@ -539,6 +600,11 @@
                     //remove local procedure from list
                     $scope.removeProcedure = function ($index) {
                         $scope.procedures.splice($index, 1);
+                    }
+                    
+                    //remove local CPT Code from list
+                    $scope.removeBill = function ($index) {
+                    	$scope.bills.splice($index, 1);
                     }
 
                     //call initally
@@ -904,7 +970,6 @@
 										</div>
 									</div>
 
-
 									<!-- Prescription Panel -->
 									<div ng-show="visit.type == 'GENERAL_CHECKUP'" class="col-md-4">
 										<div class="panel panel-info">
@@ -1004,7 +1069,69 @@
 										</div>
 									</div>
 								</div>
+								
+								<!-- NEW CPT CODE PANEL -->
+								<div ng-show="visit.type == 'GENERAL_CHECKUP' || visit.type == 'GENERAL_OPHTHALMOLOGY'" class="col-md-4">
+									<div class="panel panel-info">
+										<div class="panel-heading">
+											<h4>CPT Code</h4>
+										</div>
+										<div class="panel-body">
+											<div class="form-group row">
+												<div class="col-xs-6">
+													<label>CPT Code:</label>
+												</div>
+												<div class="col-xs-6 radio-box">
+													<div class="form-check">
+														<ul style="list-style: none;">
+															<li ng-repeat="c in cptcodes"><label> <input
+																	type="radio" ng-model="$parent.cptEntry"
+																	id="{{c.code}}" name="{{c.description}}" ng-value="c"
+																	required="true" /> {{c.code}} - {{c.cost}}
+															</label></li>
+														</ul>
+													</div>
+												</div>
+											</div>
+											<div class="form-group row">
+												<div class="col-xs-6">
+													<label>Notes:</label>
+												</div>
+												<div class="col-xs-6">
+													<input class="form-control" name="cptNotesEntry"
+														ng-model="cptNoteEntry" required="true" type="text">
+												</div>
+											</div>
+											<div class="form-group row text-center">
+												<div class="col-md-12">
+													<button class="btn btn-success" ng-click="fillBill()"
+														name="fillBill">Add CPT Code</button>
+												</div>
+											</div>
 
+											<div class="form-group row">
+												<div class="col-md-12">
+													<div class="panel panel-default">
+														<div class="panel-heading">Added Codes</div>
+														<div class="panel-body">
+															<div class="row" ng-repeat="b in bills">
+																<div class="col-md-4">{{b.code}} - {{b.cost}}</div>
+																<div class="col-md-4">
+																	<button class="btn btn-danger btn-xs"
+																		ng-click="removeBill($index)"
+																		name="removeBill">
+																		<b>x</b>
+																	</button>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								
 								<!-- Lab Procedures Panel -->
 								<div ng-show="visit.type == 'GENERAL_CHECKUP'" class="row">
 									<div class="col-md-4">
