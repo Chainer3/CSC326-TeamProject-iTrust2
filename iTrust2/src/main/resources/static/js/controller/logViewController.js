@@ -17,7 +17,7 @@ angular.module("logsApp").controller('logsCtrl', function($scope, $http) {
 		}
 		
 		$http.get("/api/v1/logentries/range/", self.requestParams).then(function (response) {
-			self.logs = response.data;
+	//		self.logs = response.data;
 		});
 	}
 	
