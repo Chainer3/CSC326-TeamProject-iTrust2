@@ -11,13 +11,21 @@
 				<div class="col-md-12">
 					<div class="panel panel-primary">
 
+<<<<<<< HEAD
 						<!-- log entry header -->
+=======
+						<!-- active cpt's header -->
+>>>>>>> 36ed18cfb9fbc8054758dd2baf2ceb0e0f7344b2
 						<div class="panel-heading">
 							<h3>Active CPT Codes</h3>
 						</div>
 						<div class="panel-body">
 							<table class="table table-bordered" name="cpt_table">
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 36ed18cfb9fbc8054758dd2baf2ceb0e0f7344b2
 								<!-- table column headers -->
 								<thead>
 									<tr>
@@ -28,17 +36,27 @@
 									</tr>
 								</thead>
 
+<<<<<<< HEAD
 								<!-- CPT code for every row, ordered by date -->
+=======
+								<!-- CPT code for every row, ordered by code ascending -->
+>>>>>>> 36ed18cfb9fbc8054758dd2baf2ceb0e0f7344b2
 								<tbody>
 									<tr name="cptTableRow" ng-repeat="l in ctrl.cpts">
 										<td name="codeCell">{{l.code}}</td>
 										<td name="descriptionCell">{{l.description}}</td>
 										<td name="costCell">{{l.cost}}</td>
+<<<<<<< HEAD
 										<td name="actionCell"><button mat-raised-button color="blue"; 
 										                       ng-click="ctrl."
 										                       >Edit</button>
 										         <button mat-raised-button color="red">Delete</button></td>								
 								     </tr>
+=======
+										<td name="actionCell"><button mat-raised-button color="blue";
+										          ng-click="ctrl.prevPage()">Edit</button>
+										         <button mat-raised-button color="red">Delete</button></td>								</tr>
+>>>>>>> 36ed18cfb9fbc8054758dd2baf2ceb0e0f7344b2
 								</tbody>
 							</table>
 							
@@ -87,16 +105,28 @@
 															</div>
 														</div>
 													</div>
+<<<<<<< HEAD
 							         </div>
 							      </div> 
 							    </div>
 							
 							</div>
+=======
+							                    </div>
+							                    <br/>
+							            </form>							            
+							        </div> 
+							    </div>
+							</div>
+							<br/>
+						
+>>>>>>> 36ed18cfb9fbc8054758dd2baf2ceb0e0f7344b2
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
+<<<<<<< HEAD
 		
 		<script>
 		
@@ -123,3 +153,23 @@
 		})		
     	</script>
 		
+=======
+	</div>
+
+    <script>
+	var App = angular.module('cptsApp',[]);
+	
+	angular.module("cptsApp").controller('cptsCtrl', function($scope, $http) {
+       var self = this;
+       self.cpts = [];
+       self.updateTable = function() {
+          $http.get("/iTrust2/api/v1/cptcodes/").then(function(response) {
+        	  self.cpts = response.data;
+          });
+       }
+       
+       self.updateTable();
+    })
+		
+    </script>
+>>>>>>> 36ed18cfb9fbc8054758dd2baf2ceb0e0f7344b2

@@ -266,6 +266,10 @@ public class APIUserController extends APIController {
 
         userService.save( vaccinator );
 
+        final User billing = new Personnel( new UserForm( "billing", "123456", Role.ROLE_BILLING, 1 ) );
+
+        userService.save( billing );
+
         loggerUtil.log( TransactionType.USERS_GENERATED, "" );
 
         return new ResponseEntity( HttpStatus.OK );

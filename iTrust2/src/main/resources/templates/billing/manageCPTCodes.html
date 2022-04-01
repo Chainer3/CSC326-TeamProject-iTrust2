@@ -1,0 +1,222 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="layout :: head(title=~{::title},links=~{})">
+    <title>Manage CPT Codes</title>
+</head>
+<body th:include="layout :: body" th:with="content=~{::content}">
+
+    <div th:fragment="content">
+        <script th:inline="javascript">
+            var app = angular.module('cptsApp', []);
+
+            angular.module("cptsApp").controller('cptsCtrl', function ($scope, $http) {
+    
+                $scope.updateTable = function () {
+                    $http.get("/iTrust2/api/v1/cptcodes/").then(
+                    		function (response) {
+                                $scope.cpts = response.data;
+                                $scope.message = "";
+                                $scope.enableEdit = false;
+                    		}, function(rejection) {
+                    			$scope.cpts = [];
+                    			$scope.cpts = "Could not display CPT Codes"
+                    });
+                }
+
+                $scope.addCode = function () {
+                    if (cpt.isArchived) {
+                        $scope.errorAdding = ("CPT code is not an active code");
+                    } else if ($scope.cpt.description.length > 250) {
+                        $scope.errorAdding = "Description exceeds character limit of 250";
+                    } else if ($scope.cpt.cost < 0) {
+                        $scope.errorAdding = "Could not add CPT Code: Price must be greater than 0";
+                    } else if (/^[0-9]{5}$/.test($scope.cpt.cpts) == false) {
+                        $scope.errorAdding = "Code doesn't meet specifications";
+                    } else if (cpt.timeRangeMin > cpt.timeRangeMax) {
+                        $scope.errorAdding = "Could not add CPT Code: Invalid Time Range";
+                    } else {
+                        $http.post("/iTrust2/api/v1/cptcodes", $scope.code).then(
+                            function (response) {
+                                $scope.updateTable();
+                                $scope.cpt.code = "";
+                                $scope.cpt.description = "";
+                                $sccope.cpt.cost = "";
+                                $scope.errorAdding = "";
+                            }, function (rejection) {
+                                $scope.errorAdding = "Could not add CPT Code";
+                            });
+                    }
+
+                }
+                
+                //Get a CPT code
+                $scope.getCPT = function() {
+                	$http.get("/iTrust2/api/v1/cptcodes/" + $scope.cpt.code).then(
+                			function(response) {
+                				$scope.cpt = response.data;
+                	})
+                }
+
+                //Edit a CPT code and put it back in the table
+                $scope.editCPT = function () {
+                    if ($scope.cpt.isArchived) {
+                        $scope.errorAdding = ("CPT code is not an active code");
+                    } else if ($scope.cpt.description.length > 250) {
+                        $scope.errorAdding = "Description exceeds character limit of 250";
+                    } else if ($scope.cpt.cost < 0) {
+                        $scope.errorAdding = "Could not add CPT Code: Price must be greater than 0";
+                    } else if (/^[0-9]{5}$/.test($scope.cpt.cpts) == false) {
+                        $scope.errorAdding = "Code doesn't meet specifications";
+                    } else if ($scope.cpt.timeRangeMin > $scope.cpt.timeRangeMax) {
+                        $scope.errorAdding = "Could not add CPT Code: Invalid Time Range";
+                    } else {
+                        $http.put("/iTrust2/api/v1/cptcodes/" + cpt.id).then(function (response) {
+                          $scope.updateTable();
+						  $scope.cpt.code = "";
+						  $scope.cpt.description = "";
+						  $scope.cpt.cost = "";
+						  $scope.errorAdding = ";"
+                        }, function(rejection) {
+                        	$scope.errorAdding = "Could not edit code";
+                        });
+                    }
+                }
+
+                //Assign CPT code with new data 
+                $scope.updateCPT = function (cpt) {
+                    $scope.enableEdit = true;
+
+                    $scope.newCPT = {};
+                    $scope.newCPT.code = cpt.code;
+                    $scope.newCPT.description = cpt.description;
+                    $scope.newCPT.cost = cpt.cost;
+                }
+
+                    //Deletes the entire row from the table
+                    $scope.deleteRow = function (cpt) {
+                        $http.delete('/iTrust2/api/v1/cptcode/' + cpt.id).then(
+                            function (response) {
+                                $scope.updateTable();
+                                $scope.message = "";
+                            }, function (rejection) {
+                                $scope.message = "Could not remove CPT code";
+                            })
+
+                    }
+
+                    // update table on each page load
+                    $scope.updateTable();
+                });
+
+        </script>
+
+        <div ng-app="cptsApp" ng-controller="cptsCtrl as ctrl">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="panel panel-primary">
+
+                            <!-- active cpt's header -->
+                            <div class="panel-heading">
+                                <h3>Active CPT Codes</h3>
+                            </div>
+                            <div class="panel-body">
+                                <table class="table table-bordered" name="cpt_table">
+
+                                    <!-- table column headers -->
+                                    <thead>
+                                        <tr>
+                                            <th>CPT Code</th>
+                                            <th>Description</th>
+                                            <th>Price</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+
+                                    <!-- CPT code for every row, ordered by code ascending -->
+                                    <tbody>
+                                        <tr name="cptTableRow" ng-repeat="l in cpts | orderBy: 'code'" codeId={{l.id}}>
+                                            <td name="codeCell">{{l.code}}</td>
+                                            <td name="descriptionCell">{{l.description}}</td>
+                                            <td name="costCell">{{l.cost}}</td>
+                                            <td name="actionCell">
+                                                <input type="button" value="Edit"
+                                                class="btn btn-primary" ng-click=updateCPT(l)/>
+                                                <input type="button" value="Delete"
+                                                class="btn btn-primary" ng-click=deleteRow(l)/>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <script type="text/ng-template" id="static">
+                                    <td>{{cpt.</td>
+                                </script>
+                                
+                                <br>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading">Add New Code</div>
+                                            <div class="panel-body">
+                                                <form class="form-horizontal" role="form" name="viewLogForm"
+                                                    ng-submit="ctrl.searchByDate()">
+                                                    <br>
+
+                                                    <div class="row">
+
+                                                        <!-- start date -->
+                                                        <div class="col-md-5">
+                                                            <label>Code</label>
+                                                            <div class="row">
+                                                                <div class="col-md-7">
+                                                                    <input type="date" class="form-control"
+                                                                        name="startDate" ng-model="ctrl.startDate"
+                                                                        ng-max="ctrl.endDate" required />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- end date -->
+                                                        <div class="col-md-5">
+                                                            <label>Description</label>
+                                                            <div class="row">
+                                                                <div class="col-md-7">
+                                                                    <input type="date" class="form-control"
+                                                                        name="endDate" ng-model="ctrl.endDate"
+                                                                        required />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="col-md-5">
+                                                            <label>Price</label>
+                                                            <div class="row">
+                                                                <div class="col-md-7">
+                                                                    <input type="date" class="form-control"
+                                                                        name="endDate" ng-model="ctrl.endDate"
+                                                                        required />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                           <button mat-raised-button ng-click="addCPT()">Submit</button>
+                                                        </div>
+                                                    </div>
+                                                    <br />
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <br />
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+</body>
+
+</html>
