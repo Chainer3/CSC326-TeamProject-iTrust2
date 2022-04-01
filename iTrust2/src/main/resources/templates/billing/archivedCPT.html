@@ -1,0 +1,65 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="layout :: head(title=~{::title},links=~{})">
+<title>Archived CPT Codes</title>
+</head>
+<body th:include="layout :: body" th:with="content=~{::content}">
+
+	<div th:fragment="content">
+		<script th:inline="javascript">
+			var app = angular.module('archiveCPT', []);
+
+			angular.module("archiveCPT").controller(
+					'archiveCPTsCtrl',
+					function($scope, $http) {
+						var self = this;
+						self.archivedCPTs = [];
+
+						self.updateTable = function() {
+							$http.get("/iTrust2/api/v1/cptarchive/").then(
+									function(response) {
+										self.archivedCPTs = response.data;
+									});
+						}
+					});
+		</script>
+
+		<div ng-app="archiveCPT" ng-controller="archiveCPTsCtrl as ctrl">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-12">
+						<div class="panel panel-primary">
+
+							<!-- active cpt's header -->
+							<div class="panel-heading">
+								<h3>Archived CPT Codes</h3>
+							</div>
+							<div class="panel-body">
+								<table class="table table-bordered" name="cpt_table">
+
+									<!-- table column headers -->
+									<thead>
+										<tr>
+											<th>CPT Code</th>
+											<th>Description</th>
+											<th>Price</th>
+											<th>Version</th>
+										</tr>
+									</thead>
+
+									<!-- CPT code for every row, ordered by code ascending, then version -->
+									<tbody>
+										<tr name="cptTableRow" ng-repeat="l in ctrl.cpts">
+											<td name="codeCell">{{l.code}}</td>
+											<td name="descriptionCell">{{l.description}}</td>
+											<td name="costCell">{{l.cost}}</td>
+											<td name="costCell">{{l.version}}</td>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
