@@ -2,10 +2,6 @@ package edu.ncsu.csc.iTrust2.forms;
 
 import java.util.Objects;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-
 import edu.ncsu.csc.iTrust2.models.CPTCode;
 
 /**
@@ -16,13 +12,6 @@ import edu.ncsu.csc.iTrust2.models.CPTCode;
  *
  */
 public class CPTCodeForm {
-
-    /**
-     * ID of this CPTCode
-     */
-    @Id
-    @GeneratedValue ( strategy = GenerationType.AUTO )
-    private Long    id;
 
     /**
      * Value of the CPTCode. Number that is associated with the code
@@ -80,25 +69,6 @@ public class CPTCodeForm {
         setIsArchived( code.getIsArchived() );
         setTimeRangeMin( code.getTimeRangeMin() );
         setTimeRangeMax( code.getTimeRangeMax() );
-    }
-
-    /**
-     * Sets the id of the CPT code to the parameter.
-     *
-     * @param id
-     *            the value to set the id to
-     */
-    public void setId ( final Long id ) {
-        this.id = id;
-    }
-
-    /**
-     * Gets the id of the CPT code
-     *
-     * @return the id of the CPT code
-     */
-    public Long getId () {
-        return id;
     }
 
     /**
