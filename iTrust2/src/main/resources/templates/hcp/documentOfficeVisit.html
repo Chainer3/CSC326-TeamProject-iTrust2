@@ -425,7 +425,7 @@
                                 $scope.visit.cptCodes = $scope.bills;
 
                                 $scope.visit.labProcedures = $scope.procedures;
-                                console.log($scope.visit);
+                                //console.log($scope.visit);
                                 
                                 $http({
                                     method: 'POST',
@@ -498,8 +498,8 @@
                             note: $scope.noteEntry,
                             code: $scope.codeEntry.code
                         }
-                        console.log($scope.codeEntry);
-                        console.log(d);
+                        //console.log($scope.codeEntry);
+                        //console.log(d);
                         var err = checkValidDiagnosis(d);
                         if (err) {
                             $scope.errorMsg = err;
@@ -533,7 +533,7 @@
                     	}
                     	else {
                         	$scope.bills.push(b);
-                        	console.log($scope.bills);
+                        	//console.log($scope.bills);
                     		resetCPTForm();
                     	}
                     	//if (err) {
