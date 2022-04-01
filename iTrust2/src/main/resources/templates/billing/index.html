@@ -1,14 +1,5 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:include="layout :: head(title=~{::title},links=~{})">
-<<<<<<< HEAD
-<title>Patient Home</title>
-</head>
-<body th:include="layout :: body" th:with="content=~{::content}">
-	<div th:fragment="content">
-		<h1>Welcome to iTrust2 - Patient</h1>
-		<div th:include="cptView :: cpt"></div>
-	</div>
-=======
 <title>Billing Home</title>
 </head>
 <body th:include="layout :: body" th:with="content=~{::content}">
@@ -17,7 +8,6 @@
 		<h1>Welcome to iTrust2 - Billing</h1>
 		<div th:include="logView :: log"></div>
 	</div>
-	
->>>>>>> 36ed18cfb9fbc8054758dd2baf2ceb0e0f7344b2
+
 </body>
 </html>
