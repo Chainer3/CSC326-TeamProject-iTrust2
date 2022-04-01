@@ -136,13 +136,13 @@ public class APIPrescriptionTest {
                         .content( TestUtils.asJsonString( form2 ) ) )
                 .andExpect( status().isOk() ).andReturn().getResponse().getContentAsString();
         final Prescription p2 = TestUtils.gson().fromJson( content2, Prescription.class );
-        final PrescriptionForm p2Form = new PrescriptionForm( p1 );
-        assertEquals( form1.getDrug(), p2Form.getDrug() );
-        assertEquals( form1.getDosage(), p2Form.getDosage() );
-        assertEquals( form1.getRenewals(), p2Form.getRenewals() );
-        assertEquals( form1.getPatient(), p2Form.getPatient() );
-        assertEquals( form1.getStartDate(), p2Form.getStartDate() );
-        assertEquals( form1.getEndDate(), p2Form.getEndDate() );
+        final PrescriptionForm p2Form = new PrescriptionForm( p2 );
+        assertEquals( form2.getDrug(), p2Form.getDrug() );
+        assertEquals( form2.getDosage(), p2Form.getDosage() );
+        assertEquals( form2.getRenewals(), p2Form.getRenewals() );
+        assertEquals( form2.getPatient(), p2Form.getPatient() );
+        assertEquals( form2.getStartDate(), p2Form.getStartDate() );
+        assertEquals( form2.getEndDate(), p2Form.getEndDate() );
 
         // Verify prescriptions have been added
         final String allPrescriptionContent = mvc.perform( get( "/api/v1/prescriptions" ) ).andExpect( status().isOk() )
@@ -163,9 +163,7 @@ public class APIPrescriptionTest {
         assertEquals( p1.getDosage(), edited.getDosage() );
 
         // Get single prescription
-        final String getContent = mvc
-                .perform( put( "/api/v1/prescriptions" ).contentType( MediaType.APPLICATION_JSON )
-                        .content( TestUtils.asJsonString( new PrescriptionForm( p1 ) ) ) )
+        final String getContent = mvc.perform( get( "/api/v1/prescriptions/" + p1.getId() ) )
                 .andExpect( status().isOk() ).andReturn().getResponse().getContentAsString();
         final Prescription fetched = TestUtils.gson().fromJson( getContent, Prescription.class );
         assertEquals( p1.getId(), fetched.getId() );

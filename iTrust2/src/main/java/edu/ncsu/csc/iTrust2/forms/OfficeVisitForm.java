@@ -144,6 +144,11 @@ public class OfficeVisitForm implements Serializable {
     private List<PrescriptionForm> prescriptions;
 
     /**
+     * CPTCodes associated with this visit
+     */
+    private List<CPTCodeForm>      cptCodes;
+
+    /**
      * The visit form with ophthalmology details
      */
     private OphthalmologyVisitForm ophthalmologyVisitForm;
@@ -543,6 +548,25 @@ public class OfficeVisitForm implements Serializable {
      */
     public List<PrescriptionForm> getPrescriptions () {
         return prescriptions;
+    }
+
+    /**
+     * Sets the list of CPTCodes for this visit
+     *
+     * @param the
+     *            list of CPTCodes
+     */
+    public void setCPTCodes ( final List<CPTCodeForm> codes ) {
+        this.cptCodes = codes;
+    }
+
+    /**
+     * Gets the list of CPTCodes associated with this visit.
+     *
+     * @return the list of CPTCodes for this visit.
+     */
+    public List<CPTCodeForm> getCPTCodes () {
+        return cptCodes;
     }
 
     /**
