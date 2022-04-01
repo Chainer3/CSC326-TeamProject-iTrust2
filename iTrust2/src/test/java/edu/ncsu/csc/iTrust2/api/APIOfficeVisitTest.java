@@ -11,7 +11,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
@@ -31,9 +33,11 @@ import org.springframework.web.context.WebApplicationContext;
 
 import edu.ncsu.csc.iTrust2.common.TestUtils;
 import edu.ncsu.csc.iTrust2.forms.AppointmentRequestForm;
+import edu.ncsu.csc.iTrust2.forms.CPTCodeForm;
 import edu.ncsu.csc.iTrust2.forms.OfficeVisitForm;
 import edu.ncsu.csc.iTrust2.forms.UserForm;
 import edu.ncsu.csc.iTrust2.models.BasicHealthMetrics;
+import edu.ncsu.csc.iTrust2.models.CPTCode;
 import edu.ncsu.csc.iTrust2.models.Hospital;
 import edu.ncsu.csc.iTrust2.models.OfficeVisit;
 import edu.ncsu.csc.iTrust2.models.Patient;
@@ -418,6 +422,96 @@ public class APIOfficeVisitTest {
         visit.setId( "101" );
         mvc.perform( put( "/api/v1/officevisits/" + tempId ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( visit ) ) ).andExpect( status().isNotFound() );
+
+    }
+
+    /**
+     * Tests OfficeVisitAPI
+     *
+     * @throws Exception
+     */
+    @Test
+    @Transactional
+    @WithMockUser ( username = "hcp", roles = { "HCP" } )
+    public void testBuildOfficeVisitCPTCodes () {
+        final OfficeVisitForm form = new OfficeVisitForm();
+        form.setDate( "2023-12-03T09:50:00.000-04:00" ); // 12/03/2023 9:50 AM
+        form.setHcp( "hcp" );
+        form.setPatient( "patient" );
+        form.setNotes( "Test office visit" );
+        form.setType( AppointmentType.GENERAL_CHECKUP.toString() );
+        form.setHospital( "iTrust Test Hospital 2" );
+        form.setHdl( 1 );
+        form.setHeight( 1f );
+        form.setWeight( 1f );
+        form.setLdl( 1 );
+        form.setTri( 100 );
+        form.setDiastolic( 1 );
+        form.setSystolic( 1 );
+        form.setHouseSmokingStatus( HouseholdSmokingStatus.NONSMOKING );
+        form.setPatientSmokingStatus( PatientSmokingStatus.FORMER );
+
+        final List<CPTCode> list = new ArrayList<CPTCode>();
+        final CPTCode c = new CPTCode();
+        c.setCode( 99205 );
+        c.setCost( 7500 );
+        c.setDescription( "This is a description" );
+        c.setIsArchived( false );
+        c.setTimeRangeMax( 30 );
+        c.setTimeRangeMin( 20 );
+        c.setVersion( "1.1.0" );
+        list.add( c );
+
+        final CPTCode c2 = new CPTCode();
+        c2.setCode( 99206 );
+        c2.setCost( 10000 );
+        c2.setDescription( "This is a description also" );
+        c2.setIsArchived( false );
+        c2.setTimeRangeMax( 60 );
+        c2.setTimeRangeMin( 45 );
+        c2.setVersion( "1.1.1" );
+        list.add( c2 );
+
+        final CPTCode c3 = new CPTCode();
+        c3.setCode( 99207 );
+        c3.setCost( 5000 );
+        c3.setDescription( "Test 3" );
+        c3.setIsArchived( false );
+        c3.setTimeRangeMax( 0 );
+        c3.setTimeRangeMin( 0 );
+        c3.setVersion( "1.2.1" );
+        list.add( c3 );
+
+        form.setCPTCodes( list.stream().map( CPTCodeForm::new ).collect( Collectors.toList() ) );
+
+        final OfficeVisit visit = officeVisitService.build( form );
+
+        final List<CPTCode> list2 = visit.getCPTCodes();
+        assertEquals( 3, visit.getCPTCodes().size() );
+
+        assertEquals( 99205, list2.get( 0 ).getCode() );
+        assertEquals( 7500, list2.get( 0 ).getCost() );
+        assertEquals( "This is a description", list2.get( 0 ).getDescription() );
+        assertFalse( list2.get( 0 ).getIsArchived() );
+        assertEquals( 30, list2.get( 0 ).getTimeRangeMax() );
+        assertEquals( 20, list2.get( 0 ).getTimeRangeMin() );
+        assertEquals( "1.1.0", list2.get( 0 ).getVersion() );
+
+        assertEquals( 99206, list2.get( 1 ).getCode() );
+        assertEquals( 10000, list2.get( 1 ).getCost() );
+        assertEquals( "This is a description also", list2.get( 1 ).getDescription() );
+        assertFalse( list2.get( 1 ).getIsArchived() );
+        assertEquals( 60, list2.get( 1 ).getTimeRangeMax() );
+        assertEquals( 45, list2.get( 1 ).getTimeRangeMin() );
+        assertEquals( "1.1.1", list2.get( 1 ).getVersion() );
+
+        assertEquals( 99207, list2.get( 2 ).getCode() );
+        assertEquals( 5000, list2.get( 2 ).getCost() );
+        assertEquals( "Test 3", list2.get( 2 ).getDescription() );
+        assertFalse( list2.get( 2 ).getIsArchived() );
+        assertEquals( 0, list2.get( 2 ).getTimeRangeMax() );
+        assertEquals( 0, list2.get( 2 ).getTimeRangeMin() );
+        assertEquals( "1.2.1", list2.get( 2 ).getVersion() );
 
     }
 

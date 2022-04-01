@@ -251,7 +251,6 @@ public enum TransactionType {
      * Admin views all drugs in the system
      */
     DRUG_VIEW ( 903, "Admin views all drugs in the system", true ),
-
     /**
      * HCP created a new prescription
      */
@@ -272,6 +271,24 @@ public enum TransactionType {
      * Patient viewed their list of prescriptions
      */
     PATIENT_PRESCRIPTION_VIEW ( 914, "Patient viewed their list of prescriptions", true ),
+
+    /**
+     * Admin created a new CPT code
+     */
+    CPT_CREATE ( 920, "Admin created a new CPT code", true ),
+    /**
+     * Admin edited an existing CPT code
+     */
+    CPT_EDIT ( 921, "Admin edited an existing CPT code", true ),
+    /**
+     * Admin deleted an existing CPT code
+     */
+    CPT_ARCHIVE ( 922, "Admin archived an existing CPT code", true ),
+    /**
+     * Admin views all CPT codes in the system
+     */
+    CPT_VIEW ( 923, "Admin views all CPT codes in the system", true ),
+
     /**
      * Attempt to update password fails
      */

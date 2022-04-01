@@ -126,6 +126,13 @@ public class OfficeVisit extends DomainObject {
     private List<Prescription>   prescriptions;
 
     /**
+     * CPTCodes associated with this OfficeVisit
+     */
+    @OneToMany ( cascade = CascadeType.ALL )
+    @JsonManagedReference
+    private List<CPTCode>        cptCodes;
+
+    /**
      * The ophthalmology metric data associated with this office visit.
      */
     @OneToOne ( cascade = CascadeType.ALL )
@@ -468,6 +475,25 @@ public class OfficeVisit extends DomainObject {
      */
     public void setSatisfactionSurvey ( final SatisfactionSurvey satisfactionSurvey ) {
         this.satisfactionSurvey = satisfactionSurvey;
+    }
+
+    /**
+     * Gets the CPTCodes for this visit
+     *
+     * @return the CPTCodes of this OfficeVisit
+     */
+    public List<CPTCode> getCPTCodes () {
+        return cptCodes;
+    }
+
+    /**
+     * Sets the CPTCodes for this visit to the parameter
+     *
+     * @param codes
+     *            the value to set the CPTCodes list to
+     */
+    public void setCPTCodes ( final List<CPTCode> codes ) {
+        this.cptCodes = codes;
     }
 
 }
