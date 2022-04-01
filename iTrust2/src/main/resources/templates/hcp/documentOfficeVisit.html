@@ -170,13 +170,13 @@
                             $scope.drugs = response.data;
                         });
                     /*Getting a list of ICD codes*/
-                    $http.get("/iTrust2/api/v1/icdcodes").then(
+                    $http.get("/iTrust2/api/v1/icdcodes/").then(
                         function (response) {
                             $scope.icdcodes = response.data;
                         });
                     
                     /** Getting a list of CPT Codes */
-                    $http.get("/iTrust2/api/v1/cptcodes").then(
+                    $http.get("/iTrust2/api/v1/cptcodes/").then(
                     	function (response) {
                     		$scope.cptcodes = response.data;
                     	});
@@ -425,6 +425,7 @@
                                 $scope.visit.cptCodes = $scope.bills;
 
                                 $scope.visit.labProcedures = $scope.procedures;
+                                console.log($scope.visit);
                                 
                                 $http({
                                     method: 'POST',
@@ -532,6 +533,7 @@
                     	}
                     	else {
                         	$scope.bills.push(b);
+                        	console.log($scope.bills);
                     		resetCPTForm();
                     	}
                     	//if (err) {
@@ -610,6 +612,31 @@
                     //call initally
                     resetDiagnosisForm();
                     resetPrescriptionForm();
+                    
+                    // Test code for adding cpt codes.
+                    /* 
+                    $scope.addTestCodes = function() {
+                    	var testCode1 = {
+                    			code: 1,
+                    			description: "a",
+                    			cost: 1,
+                    			version: "1",
+                    			isArchived: 0,
+                    			timeRangeMin: 1,
+                    			timeRangeMax: 2
+                    	}
+                    	console.log(testCode1);
+                    	$http.post("/iTrust2/api/v1/cptcode", testCode1).then(function (response) {
+                            $scope.errorMsg = "";
+                            $scope.message = "Added Test Code";
+                            console.log($scope.message);
+                        }, function (rejection) {
+                            $scope.message = "";
+                            $scope.errorMsg = "Error occurred adding Code: " + rejection.data.message;
+                            console.log($scope.errorMsg);
+                        })
+                    }
+                    */
                 });
 			/*]]>*/
             </script>
@@ -1104,7 +1131,7 @@
 											</div>
 											<div class="form-group row text-center">
 												<div class="col-md-12">
-													<button class="btn btn-success" ng-click="fillBill()"
+													<button class="btn btn-success" ng-click="fillBills()"
 														name="fillBill">Add CPT Code</button>
 												</div>
 											</div>
