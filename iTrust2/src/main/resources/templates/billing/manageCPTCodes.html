@@ -10,7 +10,15 @@
 
             angular.module("cptsApp").controller('cptsCtrl', function ($scope, $http) {
     
-                $scope.updateTable = function () {
+              /*$scope.cpt = {};
+                $scope.cpt.code = cpt.code;
+                $scope.cpt.description = cpt.description;
+                $scope.cpt.cost = cpt.cost; */
+            	
+            	$scope.cpts = [];
+           
+                
+            	$scope.updateTable = function () {
                     $http.get("/iTrust2/api/v1/cptcodes/").then(
                     		function (response) {
                                 $scope.cpts = response.data;
@@ -23,7 +31,7 @@
                 }
 
                 $scope.addCode = function () {
-                    if (cpt.isArchived) {
+                    if ($scope.cpt.isArchived) {
                         $scope.errorAdding = ("CPT code is not an active code");
                     } else if ($scope.cpt.description.length > 250) {
                         $scope.errorAdding = "Description exceeds character limit of 250";
@@ -79,16 +87,6 @@
                         	$scope.errorAdding = "Could not edit code";
                         });
                     }
-                }
-
-                //Assign CPT code with new data 
-                $scope.updateCPT = function (cpt) {
-                    $scope.enableEdit = true;
-
-                    $scope.newCPT = {};
-                    $scope.newCPT.code = cpt.code;
-                    $scope.newCPT.description = cpt.description;
-                    $scope.newCPT.cost = cpt.cost;
                 }
 
                     //Deletes the entire row from the table
@@ -168,7 +166,7 @@
 															<div class="row">
 																<div class="col-md-7">
 																	<input type="text" class="form-control" name="code"
-																		ng-model="ctrl.code" ng-max="ctrl.endDate" required />
+																		ng-model="cpt.code" required />
 																</div>
 															</div>
 														</div>
@@ -179,7 +177,7 @@
 															<div class="row">
 																<div class="col-md-7">
 																	<input type="text" class="form-control"
-																		name="description" ng-model="ctrl.description"
+																		name="description" ng-model="cpt.description"
 																		required />
 																</div>
 															</div>
@@ -191,19 +189,21 @@
 															<div class="row">
 																<div class="col-md-7">
 																	<input type="text" class="form-control" name="cost"
-																		ng-model="ctrl.price" required />
+																		ng-model="cpt.cost" required />
 																</div>
 															</div>
 														</div>
 													</div>
 													<div>
-														<button class="btn btn-primary" ng-click="addCPT(CPTCodeForm.$valid)">Submit</button>
+														<button class="btn btn-primary"
+															ng-click="addCode()">Submit</button>
 													</div>
 												</form>
 											</div>
 										</div>
 									</div>
-									<br /> <a style="padding-left: 30px" href="archivedCPTCodes">Archived CPT Codes</a>
+									<br /> <a style="padding-left: 30px" href="archivedCPTCodes">Archived
+										CPT Codes</a>
 
 								</div>
 							</div>
