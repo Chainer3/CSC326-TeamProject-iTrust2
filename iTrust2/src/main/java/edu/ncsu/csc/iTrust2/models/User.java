@@ -181,7 +181,8 @@ public class User extends DomainObject {
     /**
      * Set the roles of this user. Throws an exception if the Set of roles
      * provided contains either a Patient or Admin role, and that role is not
-     * the only one present
+     * the only one present or if the Set of roles contains both a Billing role
+     * and a HCP role
      *
      * @param roles
      *            the roles to set this user to
@@ -194,13 +195,18 @@ public class User extends DomainObject {
                     "Tried to create a Patient or Admin user with a secondary role.  Patient & admin can only have a single role!" );
         }
 
+        if ( roles.contains( Role.ROLE_BILLING ) && roles.contains( Role.ROLE_HCP ) ) {
+            throw new IllegalArgumentException(
+                    "Tried to create a user that was a Billing Staff Member and a HCP. A user cannot be both roles!" );
+        }
+
         this.roles = roles;
     }
 
     /**
      * Adds a new Role to this user. Throws an exception when trying to add
      * roles to a patient/admin, or add patient/admin roles to anyone with any
-     * existing role(s).
+     * existing role(s), or add a billing role to a current hcp or vice versa
      *
      * @param role
      *            the Role to add
@@ -214,6 +220,12 @@ public class User extends DomainObject {
         }
         if ( this.roles.contains( Role.ROLE_ADMIN ) || this.roles.contains( Role.ROLE_PATIENT ) ) {
             throw new IllegalArgumentException( "Admins and Patients cannot have additional roles added" );
+        }
+        if ( role.equals( Role.ROLE_BILLING ) && this.roles.contains( Role.ROLE_HCP ) ) {
+            throw new IllegalArgumentException( "Billing Staff Members cannot also be HCPs" );
+        }
+        if ( role.equals( Role.ROLE_HCP ) && this.roles.contains( Role.ROLE_BILLING ) ) {
+            throw new IllegalArgumentException( "Billing Staff Members cannot also be HCPs" );
         }
         this.roles.add( role );
     }
