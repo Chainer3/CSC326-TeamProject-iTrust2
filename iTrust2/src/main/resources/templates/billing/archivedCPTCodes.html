@@ -9,7 +9,7 @@
 			var app = angular.module('archiveCPT', []);
 
 			angular.module("archiveCPT").controller(
-					'archiveCPTsCtrl',
+					'archiveCtrl',
 					function($scope, $http) {
 						var self = this;
 						self.archivedCPTs = [];
@@ -52,7 +52,7 @@
 											<td name="codeCell">{{l.code}}</td>
 											<td name="descriptionCell">{{l.description}}</td>
 											<td name="costCell">{{l.cost}}</td>
-											<td name="costCell">{{l.version}}</td>
+											<td name="version">{{l.version}}</td>
 									</tbody>
 								</table>
 							</div>
