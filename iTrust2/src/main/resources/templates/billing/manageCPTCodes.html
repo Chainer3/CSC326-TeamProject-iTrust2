@@ -37,23 +37,24 @@
                         $scope.errorAdding = "Description exceeds character limit of 250";
                     } else if ($scope.cpt.cost < 0) {
                         $scope.errorAdding = "Could not add CPT Code: Price must be greater than 0";
-                    } else if (/^[0-9]{5}$/.test($scope.cpt.cpts) == false) {
+                    } else if (/^[0-9]{5}$/.test($scope.cpt.code) == false) {
                         $scope.errorAdding = "Code doesn't meet specifications";
-                    } else if (cpt.timeRangeMin > cpt.timeRangeMax) {
+                    } else if ($scope.cpt.timeRangeMin > $scope.cpt.timeRangeMax) {
                         $scope.errorAdding = "Could not add CPT Code: Invalid Time Range";
                     } else {
-                        $http.post("/iTrust2/api/v1/cptcodes", $scope.code).then(
+                        $http.post("/iTrust2/api/v1/cptcodes", $scope.cpt).then(
                             function (response) {
                                 $scope.updateTable();
                                 $scope.cpt.code = "";
                                 $scope.cpt.description = "";
-                                $sccope.cpt.cost = "";
+                                $scope.cpt.cost = "";
                                 $scope.errorAdding = "";
                             }, function (rejection) {
                                 $scope.errorAdding = "Could not add CPT Code";
                             });
+                        $scope.updateTable();
                     }
-
+                    console.log($scope.errorAdding);
                 }
                 
                 //Get a CPT code

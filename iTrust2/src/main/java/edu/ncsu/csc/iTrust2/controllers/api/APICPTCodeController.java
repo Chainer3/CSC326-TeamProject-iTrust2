@@ -90,7 +90,7 @@ public class APICPTCodeController extends APIController {
      * @return A list of all CPT codes.
      */
     @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_BILLING')" )
-    @GetMapping ( BASE_PATH + "/cptcodes/" )
+    @GetMapping ( BASE_PATH + "/cptcodes" )
     public List<CPTCode> getCodes () {
         // Return all CPT codes in system
         loggerUtil.log( TransactionType.CPT_VIEW, LoggerUtil.currentUser(), "User viewed a list of all CPT codes" );
