@@ -128,6 +128,7 @@ public class APICPTCodeController extends APIController {
         try {
             c.setIsArchived( true );
             cptService.save( c );
+            cptService.delete( c );
             loggerUtil.log( TransactionType.CPT_ARCHIVE, LoggerUtil.currentUser(), "Archived CPT code " + code );
             return new ResponseEntity( code, HttpStatus.OK );
         }
