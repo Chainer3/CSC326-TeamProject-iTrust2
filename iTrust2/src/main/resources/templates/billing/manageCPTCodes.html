@@ -7,7 +7,6 @@
 	<div th:fragment="content">
 		<script th:inline="javascript">
             var app = angular.module('cptsApp', []);
-
             angular.module("cptsApp").controller('cptsCtrl', function ($scope, $http) {
     
               /*$scope.cpt = {};
@@ -18,9 +17,9 @@
             	$scope.cpts = [];
            
                 
-            	$scope.updateTable = function () {
+            	$scope.updateTable = function() {
                     $http.get("/iTrust2/api/v1/cptcodes/").then(
-                    		function (response) {
+                    		function(response) {
                                 $scope.cpts = response.data;
                                 $scope.message = "";
                                 $scope.enableEdit = false;
@@ -30,7 +29,7 @@
                     });
                 }
 
-                $scope.addCode = function () {
+                $scope.addCode = function() {
                     if ($scope.cpt.isArchived) {
                         $scope.errorAdding = ("CPT code is not an active code");
                     } else if ($scope.cpt.description.length > 250) {
