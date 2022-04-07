@@ -28,18 +28,29 @@
                     			$scope.cpts = "Could not display CPT Codes"
                     });
                 }
+            	
+            	
+            	$scope.duplicateCodeCheck = function() {
+                    $scope.isDuplicate = false;
+            		for (var i = 0, len = $scope.cpts.length; i < len; i++) {
+                    	if ($scope.cpt.code == $scope.cpts[i].code) {
+                            $scope.isDuplicate = true
+                    		return $scope.isDuplicate;
+                    	}
+                    }
+            		
+            		return $scope.isDuplicate;
+            	}
 
                 $scope.addCode = function() {
-                    if ($scope.cpt.isArchived) {
-                        $scope.errorAdding = ("CPT code is not an active code");
+                	if ($scope.duplicateCodeCheck()) {
+                		$scope.errorAdding = "Could not add CPT Code: Code already exists";
                     } else if ($scope.cpt.description.length > 250) {
-                        $scope.errorAdding = "Description exceeds character limit of 250";
-                    } else if ($scope.cpt.cost < 0) {
-                        $scope.errorAdding = "Could not add CPT Code: Price must be greater than 0";
+                        $scope.errorAdding = "Could not add CPT Code: Description exceeds character limit of 250";
+                    } else if ($scope.cpt.cost < 0 || (/[+-]?[0-9]+/.test($scope.cpt.cost) == false)) {
+                        $scope.errorAdding = "Could not add CPT Code: Invalid cost entered";
                     } else if (/^[0-9]{5}$/.test($scope.cpt.code) == false) {
-                        $scope.errorAdding = "Code doesn't meet specifications";
-                    } else if ($scope.cpt.timeRangeMin > $scope.cpt.timeRangeMax) {
-                        $scope.errorAdding = "Could not add CPT Code: Invalid Time Range";
+                        $scope.errorAdding = "Could not add CPT Code: Code doesn't meet specifications";
                     } else {
                         $http.post("/iTrust2/api/v1/cptcodes", $scope.cpt).then(
                             function (response) {
@@ -51,48 +62,53 @@
                             }, function (rejection) {
                                 $scope.errorAdding = "Could not add CPT Code";
                             });
-                        $scope.updateTable();
+                        //scope.updateTable();
                     }
                     console.log($scope.errorAdding);
                 }
                 
-                //Get a CPT code
-                $scope.getCPT = function() {
-                	$http.get("/iTrust2/api/v1/cptcodes/" + $scope.cpt.code).then(
-                			function(response) {
-                				$scope.cpt = response.data;
-                	})
-                }
+                //Builds the CPT object's data
+                $scope.buildCPT = function(cpt) {
+                	$scope.editMode = true;
+					$scope.addMode = false;
+					
+					$scope.cpt = {};
+					$scope.cpt.id = cpt.id;
+					$scope.cpt.code = cpt.code;
+					$scope.cpt.description = cpt.description;
+					$scope.cpt.cost = cpt.cost;
+				}
 
                 //Edit a CPT code and put it back in the table
-                $scope.editCPT = function () {
-                    if ($scope.cpt.isArchived) {
-                        $scope.errorAdding = ("CPT code is not an active code");
+                $scope.editCPT = function() {
+                	if ($scope.duplicateCodeCheck()) {
+                		$scope.errorAdding = "Could not add CPT Code: Code already exists";
                     } else if ($scope.cpt.description.length > 250) {
-                        $scope.errorAdding = "Description exceeds character limit of 250";
-                    } else if ($scope.cpt.cost < 0) {
-                        $scope.errorAdding = "Could not add CPT Code: Price must be greater than 0";
-                    } else if (/^[0-9]{5}$/.test($scope.cpt.cpts) == false) {
-                        $scope.errorAdding = "Code doesn't meet specifications";
-                    } else if ($scope.cpt.timeRangeMin > $scope.cpt.timeRangeMax) {
-                        $scope.errorAdding = "Could not add CPT Code: Invalid Time Range";
+                        $scope.errorAdding = "Could not add CPT Code: Description exceeds character limit of 250";
+                    } else if ($scope.cpt.cost < 0 || (/[+-]?[0-9]+/.test($scope.cpt.cost) == false)) {
+                        $scope.errorAdding = "Could not add CPT Code: Invalid cost entered";
+                    } else if (/^[0-9]{5}$/.test($scope.cpt.code) == false) {
+                        $scope.errorAdding = "Could not add CPT Code: Code doesn't meet specifications";
                     } else {
-                        $http.put("/iTrust2/api/v1/cptcodes/" + cpt.id).then(function (response) {
-                          $scope.updateTable();
-						  $scope.cpt.code = "";
-						  $scope.cpt.description = "";
-						  $scope.cpt.cost = "";
-						  $scope.errorAdding = ";"
-                        }, function(rejection) {
-                        	$scope.errorAdding = "Could not edit code";
-                        });
+                        $http.put("/iTrust2/api/v1/cptcodes" + $scope.cpt.code, $scope.cpt).then(
+                            function (response) {
+                                $scope.updateTable();
+                                $scope.cpt.code = "";
+                                $scope.cpt.description = "";
+                                $scope.cpt.cost = "";
+                                $scope.errorAdding = "";
+                            }, function (rejection) {
+                                $scope.errorAdding = "Could not add CPT Code";
+                            });
+                        //scope.updateTable();
                     }
+                    console.log($scope.errorAdding);
                 }
 
                     //Deletes the entire row from the table
-                    $scope.deleteRow = function (cpt) {
-                        $http.delete('/iTrust2/api/v1/cptcode/' + cpt.id).then(
-                            function (response) {
+                    $scope.deleteRow = function(cpt) {
+                        $http.delete('/iTrust2/api/v1/cptcode/' + cpt.code).then(
+                            function(response) {
                                 $scope.updateTable();
                                 $scope.message = "";
                             }, function (rejection) {
@@ -138,9 +154,9 @@
 											<td name="descriptionCell">{{l.description}}</td>
 											<td name="costCell">{{l.cost}}</td>
 											<td name="actionCell"><input type="button" value="Edit"
-												class="btn btn-primary" ng-click="updateCPT(l)" /> <input
-												type="button" value="Delete" class="btn btn-primary"
-												ng-click="deleteRow(l)" /></td>
+												    class="btn btn-primary" ng-click="editCPT(l)" />
+												<input type="button" value="Delete" class="btn btn-primary"
+												    ng-click="deleteRow(l)" /></td>
 										</tr>
 									</tbody>
 								</table>
@@ -199,12 +215,15 @@
 															ng-click="addCode()">Submit</button>
 													</div>
 												</form>
+												<div>
+							                        <!-- <h4 style="color: red" ng-show="addCodeForm.$valid">Code doesn't meet specifications</h4>  -->
+							                        <p style="color: red" ng-model="errorAdding" id="errP">{{errorAdding}}</p>
+						                        </div>
 											</div>
 										</div>
 									</div>
-									<br /> <a style="padding-left: 30px" href="archivedCPTCodes">Archived
-										CPT Codes</a>
-
+									<br /> 
+									<a style="padding-left: 30px" href="archivedCPTCodes">Archived CPT Codes</a>
 								</div>
 							</div>
 						</div>
