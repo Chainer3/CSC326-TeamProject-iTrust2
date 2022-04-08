@@ -1,0 +1,246 @@
+<diagram program="umletino" version="14.3.0"><zoom_level>10</zoom_level><element><id>UMLClass</id><coordinates><x>322</x><y>1056</y><w>280</w><h>260</h></coordinates><panel_attributes>Role
+--
++ ROLE_PATIENT ( 1, "patient/index" )
++ ROLE_HCP ( 2, "hcp/index" )
++ ROLE_ADMIN ( 3, "admin/index" )
++ ROLE_ER ( 4, "er/index" )
++ ROLE_LABTECH ( 5, "labtech/index" )
++ ROLE_OD ( 6, "hcp/index" )
++ ROLE_OPH ( 7, "hcp/index" )
++ ROLE_VIROLOGIST ( 8, "hcp/index" )
++ ROLE_VACCINATOR ( 9, "vaccinator/index" )
++ ROLE_BILLING ( 10, "billing/index" )
+- code: int
+- landingPage: String
+-
+- Role(int, String)
++ getCode(): int
++ getLanding(): String</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>92</x><y>406</y><w>300</w><h>390</h></coordinates><panel_attributes>OfficeVisit
+--
+- patient: User
+- hcp: User
+- bascHealthMetrics: BasicHealthMetrics
+- satisfactionSurvey: SatisfactionSurvey
+- date: ZonedDateTime
+- id: Long
+- type: AppointmentType
+- hospital: Hospital
+- diagnoses: List&lt;Diagnosis&gt;
+- notes: String
+- appointment: AppointmentRequest
+- prescriptions: List&lt;Prescription&gt;
+- ophthalmologyMetrics: OphthalmologyMetrics
+- minutes: int
+
+-
+OfficeVisit()
++ validateDiagnoses(): void
++ validateOphthalmology(): void
++ validate12AndOver(): void
++ validateUnder12(): void
++ validateUnder3(): void
++ validateCPTCodes(): void
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>741</x><y>540</y><w>210</w><h>260</h></coordinates><panel_attributes>Bill
+--
+- id: Long
+- totalDue: Long
+- isPaid: boolean
+-
+Bill()
+Bill(OfficeVisit)
++ setId( Long ): void
++ getId(): Long
++ setTotalDue( Long ): void
++ getTotalDue(): Long
++ setIsPaid( boolean ): void
++ getIsPaid(): boolean
++ setOfficeVisit( OfficeVisit ): void
++ getOfficeVisit(): OfficeVisit
++ setPayments(List&lt;Payment&gt;): void
++ getPayments(): List&lt;Payment&gt;</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>981</x><y>540</y><w>260</w><h>130</h></coordinates><panel_attributes>BillService
+--
+# getRepository(): JpaRepository&lt;Bill, String&gt;
++ findByOfficeVisit(OfficeVisit): Bill
++ findByIsPaid(boolean): List&lt;Bill&gt;</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1011</x><y>880</y><w>370</w><h>90</h></coordinates><panel_attributes>CPTCodeRepository
+--
++ findByCode(String): CPTCode
++ findByIsArchived(boolean): List&lt;CPTCode&gt;
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>11</x><y>1034</y><w>210</w><h>340</h></coordinates><panel_attributes>CPTCodeForm
+--
+- id: Long
+- code: String
+- description: String
+- cost: Long
+- version: Long
+- isArchived: boolean
+-
+CPTCodeForm()
+CPTCodeForm(CPTCode)
++ getId(): Long
++ setId(Long): void
++ getCode(): String
++ setCode(String): void
++ getDescription(): String
++ setDescription(String): void
++ getCost(): Long
++ setCost(Long): void
++ getVersion(): Long
++ setVersion(Long): void
++ getIsArchived(): boolean
++ setIsArchived(boolean): void</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>0</x><y>836</y><w>570</w><h>160</h></coordinates><panel_attributes>APICPTCodeController
+--
+- loggerUtil: LoggerUtil
+
+-
++ getCodes(): List&lt;CPTCode&gt;
++ getCode(id: @PathVariable Long): ResponseEntity
++ addCode(addCode: @RequestBody CPTCodeForm): ResponseEntity
++ deleteCode(id: @PathVariable Long): ResponseEntity
++ updateCode(id: @PathVariable Long, updateCode: @RequestBody CPTCodeForm): ResponseEntity</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>560</x><y>906</y><w>140</w><h>50</h></coordinates><panel_attributes>lt=&lt;-
+m1= 1
+-service</panel_attributes><additional_attributes>120;20;10;20</additional_attributes></element><element><id>Relation</id><coordinates><x>90</x><y>346</y><w>180</w><h>80</h></coordinates><panel_attributes>lt=&lt;-
+m1=0..n
+-cptCodes: List&lt;CPTCode&gt;</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>Relation</id><coordinates><x>930</x><y>906</y><w>100</w><h>50</h></coordinates><panel_attributes>lt=&lt;-
+m1=1
+-repo</panel_attributes><additional_attributes>80;20;10;20</additional_attributes></element><element><id>UMLClass</id><coordinates><x>690</x><y>1126</y><w>320</w><h>70</h></coordinates><panel_attributes>PersonnelService
+--
+- repository: PersonnelRepository&lt;Personnel&gt;
+-
+# getRepository(): JpaRepository&lt;Personnel, String&gt;</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>790</x><y>1006</y><w>70</w><h>140</h></coordinates><panel_attributes>lt=&lt;-
+m1=1
+-service</panel_attributes><additional_attributes>10;120;11;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>1030</x><y>986</y><w>350</w><h>290</h></coordinates><panel_attributes>OfficeVisitService
+--
+- repository: OfficeVisitRepository
+- userService: UserService&lt;User&gt;
+- appointmentRequestService: AppointmentRequestService
+- hospitalService: HospitalService
+- bhmService: BasicHealthMetricsService
+- omService: OphthalmologyMetricsService
+- prescriptionService: PrescriptionService
+- diagnosisService: DiagnosisService
+-
+# getRepsository(): JpaRepository&lt;OfficeVisit, Long&gt;
++ findByHcp(User): List&lt;OfficeVisit&gt;
++ findByPatient(User): List&lt;OfficeVisit&gt;
++ findByHcpAndPatient(User, User): List&lt;OfficeVisit&gt;
++ build(OfficeVisitForm): OfficeVisit</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>930</x><y>966</y><w>120</w><h>50</h></coordinates><panel_attributes>lt=&lt;-
+m1=1
+- cptCodeService</panel_attributes><additional_attributes>11;20;100;20</additional_attributes></element><element><id>UMLClass</id><coordinates><x>71</x><y>0</y><w>210</w><h>360</h></coordinates><panel_attributes>CPTCode
+--
+- id: Long
+- code: String
+- description: String
+- cost: Long
+- version: Long
+- isArchived: boolean
+-
+CPTCode()
+CPTCode(CPTCodeForm)
++ setId( Long ): void
++ getId(): Long
++ setCode( String ): void
++ getCode(): String
++ setDescription( String ): void
++ getDescription(): String
++ setCost( Long ): void
++ getCost(): Long
++ setVersion(Long): void
++ getVersion(): Long 
++ setIsArchived(boolean): void
++ getIsArchived(): boolean </panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>721</x><y>130</y><w>240</w><h>270</h></coordinates><panel_attributes>Payment
+--
+- id: Long
+- date: ZonedDateTime
+- amount: Long
+- paymentMethod: String
+-
+Payment()
+Payment(Long, ZonedDateTime, String, Bill)
++ setId( Long ): void
++ getId(): Long
++ setAmount( Long ): void
++ getAmount(): Long
++ setDate( ZonedDateTime ): void
++ getDate(): ZonedDateTime
++ setPaymentMethod( String ): void
++ getPaymentMethod(): String
++ setBill(Bill): void
++ getBill(): Bill</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>380</x><y>526</y><w>380</w><h>50</h></coordinates><panel_attributes>lt=&lt;-
+m1= 1
+-officeVisit</panel_attributes><additional_attributes>10;20;360;20</additional_attributes></element><element><id>Relation</id><coordinates><x>920</x><y>386</y><w>170</w><h>170</h></coordinates><panel_attributes>lt=&lt;-
+m1= 0..n
+-payment: List&lt;Payment&gt;</panel_attributes><additional_attributes>11;10;10;150</additional_attributes></element><element><id>Relation</id><coordinates><x>880</x><y>386</y><w>50</w><h>170</h></coordinates><panel_attributes>lt=&lt;-
+m1= 1
+-bill</panel_attributes><additional_attributes>10;150;11;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>681</x><y>880</y><w>260</w><h>130</h></coordinates><panel_attributes>CPTCodeService
+--
+
++ findByCode(String): CPTCode
++ findByIsArchived(boolean): List&lt;CPTCode&gt;</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>971</x><y>210</y><w>280</w><h>130</h></coordinates><panel_attributes>PaymentService
+--
+# getRepository: JpaRepository&lt;Payment, String&gt;
++ findByBill(Bill): Payment</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>981</x><y>690</y><w>260</w><h>130</h></coordinates><panel_attributes>BillRepository
+--
++ findByOfficeVisit(OfficeVisit): Bill
++ findByIsPaid(boolean): List&lt;Bill&gt;</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>991</x><y>380</y><w>260</w><h>130</h></coordinates><panel_attributes>PaymentRepository
+--
++ findByBill(Bill): Payment</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1090</x><y>656</y><w>60</w><h>60</h></coordinates><panel_attributes>lt=&lt;-
+m1=1
+-repo</panel_attributes><additional_attributes>10;40;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>1120</x><y>326</y><w>60</w><h>80</h></coordinates><panel_attributes>lt=&lt;-
+m1=1
+-repo</panel_attributes><additional_attributes>10;60;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>1290</x><y>586</y><w>500</w><h>160</h></coordinates><panel_attributes>APIBillController
+--
+- loggerUtil: LoggerUtil
+
+-
++ getBills(): List&lt;Bill&gt;
++ getBill(id: @PathVariable Long): ResponseEntity</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1300</x><y>226</y><w>500</w><h>160</h></coordinates><panel_attributes>APIPaymentController
+--
+- loggerUtil: LoggerUtil
+
+-
++ getPayments(): List&lt;Bill&gt;
++ getPayments(id: @PathVariable Long): ResponseEntity
++ addPayment(addPayment: @RequestBody PaymentForm): ResponseEntity</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1230</x><y>596</y><w>80</w><h>50</h></coordinates><panel_attributes>lt=&lt;-
+m1= 1
+-service</panel_attributes><additional_attributes>10;20;60;20</additional_attributes></element><element><id>Relation</id><coordinates><x>1240</x><y>306</y><w>80</w><h>50</h></coordinates><panel_attributes>lt=&lt;-
+m1= 1
+-service</panel_attributes><additional_attributes>10;20;60;20</additional_attributes></element><element><id>UMLClass</id><coordinates><x>501</x><y>560</y><w>210</w><h>260</h></coordinates><panel_attributes>BillForm
+--
+- totalDue: Long
+- isPaid: boolean
+-
+BillForm()
+BillForm(OfficeVisit)
++ setId( Long ): void
++ getId(): Long
++ setTotalDue( Long ): void
++ getTotalDue(): Long
++ setIsPaid( boolean ): void
++ getIsPaid(): boolean
++ setOfficeVisit( OfficeVisit ): void
++ getOfficeVisit(): OfficeVisit
++ setPayments(List&lt;Payment&gt;): void
++ getPayments(): List&lt;Payment&gt;</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>431</x><y>230</y><w>270</w><h>270</h></coordinates><panel_attributes>PaymentForm
+--
+- date: ZonedDateTime
+- amount: Long
+- paymentMethod: String
+-
+PaymentForm()
+PaymentForm(Long, ZonedDateTime, String, Bill)
++ setId( Long ): void
++ getId(): Long
++ setAmount( Long ): void
++ getAmount(): Long
++ setDate( ZonedDateTime ): void
++ getDate(): ZonedDateTime
++ setPaymentMethod( String ): void
++ getPaymentMethod(): String
++ setBill(Bill): void
++ getBill(): Bill</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>380</x><y>626</y><w>140</w><h>50</h></coordinates><panel_attributes>lt=&lt;-
+m1= 1
+-officeVisit</panel_attributes><additional_attributes>10;20;120;20</additional_attributes></element><element><id>Relation</id><coordinates><x>690</x><y>406</y><w>80</w><h>160</h></coordinates><panel_attributes>lt=&lt;-
+m1= 1
+-bill</panel_attributes><additional_attributes>60;140;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>700</x><y>376</y><w>170</w><h>200</h></coordinates><panel_attributes>lt=&lt;-
+m1= 0..n
+-payment: List&lt;Payment&gt;</panel_attributes><additional_attributes>20;10;10;180</additional_attributes></element></diagram>
