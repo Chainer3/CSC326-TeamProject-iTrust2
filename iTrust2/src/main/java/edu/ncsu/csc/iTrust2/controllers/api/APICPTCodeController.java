@@ -51,13 +51,12 @@ public class APICPTCodeController extends APIController {
         try {
             final CPTCode c = cptService.build( form );
             cptService.save( c );
-            loggerUtil.log( TransactionType.CPT_CREATE, LoggerUtil.currentUser(),
-                    "Created CPT code with id " + c.getId() );
+            loggerUtil.log( TransactionType.CPT_CREATE, LoggerUtil.currentUser(), "Created CPT code " + c.getCode() );
             return new ResponseEntity( c, HttpStatus.OK );
         }
         catch ( final Exception e ) {
-            loggerUtil.log( TransactionType.CPT_CREATE, LoggerUtil.currentUser(), "Failed to create prescription" );
-            return new ResponseEntity( errorResponse( "Could not save the prescription: " + e.getMessage() ),
+            loggerUtil.log( TransactionType.CPT_CREATE, LoggerUtil.currentUser(), "Failed to create CPT code" );
+            return new ResponseEntity( errorResponse( "Could not save the CPT code: " + e.getMessage() ),
                     HttpStatus.BAD_REQUEST );
         }
     }
