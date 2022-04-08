@@ -482,7 +482,7 @@ public class OfficeVisit extends DomainObject {
      *
      * @return the CPTCodes of this OfficeVisit
      */
-    public List<CPTCode> getCPTCodes () {
+    public List<CPTCode> getCptCodes () {
         return cptCodes;
     }
 
@@ -492,7 +492,7 @@ public class OfficeVisit extends DomainObject {
      * @param codes
      *            the value to set the CPTCodes list to
      */
-    public void setCPTCodes ( final List<CPTCode> codes ) {
+    public void setCptCodes ( final List<CPTCode> codes ) {
         this.cptCodes = codes;
     }
 

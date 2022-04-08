@@ -199,10 +199,10 @@ public class OfficeVisitService extends Service<OfficeVisit, Long> {
             ov.setPrescriptions( ps.stream().map( prescriptionService::build ).collect( Collectors.toList() ) );
         }
 
-        final List<CPTCodeForm> cpt = ovf.getCPTCodes();
+        final List<CPTCodeForm> cpt = ovf.getCptCodes();
 
         if ( cpt != null ) {
-            ov.setCPTCodes( cpt.stream().map( cptCodeService::build ).collect( Collectors.toList() ) );
+            ov.setCptCodes( cpt.stream().map( cptCodeService::build ).collect( Collectors.toList() ) );
         }
 
         final Patient p = (Patient) ov.getPatient();
