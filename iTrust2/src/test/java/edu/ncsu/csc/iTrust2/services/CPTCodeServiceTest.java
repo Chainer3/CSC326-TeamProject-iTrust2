@@ -39,6 +39,33 @@ public class CPTCodeServiceTest {
         inactive = service.findByIsArchived( true );
     }
 
+    @Test
+    public void testAddCodes () {
+        final CPTCode code1 = new CPTCode();
+        code1.setId( 1L );
+        code1.setCode( 99202 );
+        code1.setDescription( "for office visits of 15-29 minutes" );
+        code1.setCost( 7500 );
+        code1.setVersion( "1.1.0" );
+        code1.setIsArchived( false );
+        code1.setTimeRangeMin( 15 );
+        code1.setTimeRangeMax( 29 );
+        // Saves the first code into the service
+        service.save( code1 );
+        final CPTCode code2 = new CPTCode();
+        code2.setId( 2L );
+        code2.setCode( 99300 );
+        code2.setDescription( "for vacciations of 10-15 minutes" );
+        code2.setCost( 5000 );
+        code2.setVersion( "1.1.0" );
+        code2.setIsArchived( false );
+        code2.setTimeRangeMin( 10 );
+        code2.setTimeRangeMax( 15 );
+        // Saves the second code into the service
+        service.save( code2 );
+
+    }
+
     /**
      * Tests saving and getting non-archived CPT codes from the repository
      */

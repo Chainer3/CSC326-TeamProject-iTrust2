@@ -34,9 +34,17 @@ body {
 
 				$scope.generateUsers = function() {
 					$http.post("api/v1/generateUsers").then(function(success) {
-
+						console.log(success);
 					}, function(failure) {
-
+						console.log(failure);
+					});
+				}
+				
+				$scope.generateCpts = function() {
+					$http.post("api/v1/generateCpts").then(function(success) {
+						console.log(success);
+					}, function(failure) {
+						console.log(failure);
 					});
 				}
 			});
@@ -121,6 +129,9 @@ body {
 									<button class="btn btn-primary btn-sm"
 										ng-click="generateUsers()" name="genUsers">Generate
 										Users</button>
+									<button class="btn btn-primary btn-sm" 
+									    ng-click="generateCpts()" name="genCpts">Generate 
+									    CPT Codes</button>
 								</div>
 							</div>
 							<div class="row">
