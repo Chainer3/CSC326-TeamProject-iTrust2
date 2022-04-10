@@ -482,12 +482,12 @@ public class APIOfficeVisitTest {
         c3.setVersion( "1.2.1" );
         list.add( c3 );
 
-        form.setCPTCodes( list.stream().map( CPTCodeForm::new ).collect( Collectors.toList() ) );
+        form.setCptCodes( list.stream().map( CPTCodeForm::new ).collect( Collectors.toList() ) );
 
         final OfficeVisit visit = officeVisitService.build( form );
 
-        final List<CPTCode> list2 = visit.getCPTCodes();
-        assertEquals( 3, visit.getCPTCodes().size() );
+        final List<CPTCode> list2 = visit.getCptCodes();
+        assertEquals( 3, visit.getCptCodes().size() );
 
         assertEquals( 99205, list2.get( 0 ).getCode() );
         assertEquals( 7500, list2.get( 0 ).getCost() );

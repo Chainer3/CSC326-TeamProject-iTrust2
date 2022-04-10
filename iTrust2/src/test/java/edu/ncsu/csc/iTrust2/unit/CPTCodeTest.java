@@ -36,7 +36,6 @@ public class CPTCodeTest {
     @Transactional
     public void testValidCodes () {
         final CPTCodeForm form = new CPTCodeForm();
-        form.setId( 1L );
         form.setCode( 99202 );
         form.setDescription( "for office visits of 15-29 minutes" );
         form.setCost( 7500 );
@@ -45,7 +44,6 @@ public class CPTCodeTest {
         form.setTimeRangeMin( 15 );
         form.setTimeRangeMax( 29 );
 
-        assertEquals( 1L, (long) form.getId() );
         assertEquals( 99202, form.getCode() );
         assertEquals( "for office visits of 15-29 minutes", form.getDescription() );
         assertEquals( 7500, form.getCost() );
@@ -107,7 +105,6 @@ public class CPTCodeTest {
     @Transactional
     public void testInvalidCodes () {
         final CPTCodeForm form = new CPTCodeForm();
-        form.setId( 1L );
         form.setCode( -34 );
 
         CPTCode code;

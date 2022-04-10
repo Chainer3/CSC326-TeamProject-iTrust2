@@ -55,6 +55,7 @@ public class CPTCodeService extends Service<CPTCode, Long> {
      */
     public CPTCode build ( final CPTCodeForm form ) {
         final CPTCode cpt = new CPTCode();
+        final CPTCode existing = findByCode( form.getCode() );
         cpt.setCode( form.getCode() );
         cpt.setCost( form.getCost() );
         cpt.setDescription( form.getDescription() );
@@ -62,7 +63,9 @@ public class CPTCodeService extends Service<CPTCode, Long> {
         cpt.setTimeRangeMax( form.getTimeRangeMax() );
         cpt.setTimeRangeMin( form.getTimeRangeMin() );
         cpt.setVersion( form.getVersion() );
-        cpt.setId( form.getId() );
+        if ( existing != null ) {
+            cpt.setId( existing.getId() );
+        }
         return cpt;
     }
 }

@@ -395,6 +395,11 @@
                             $scope.visit.date = date.toISOString();
                         }
                         
+                        // Check CPT Code has been added
+                        if (!$scope.bills.length) {
+                        	$scope.errorMsg += "Please input at least one CPT Code\n";
+                        }
+                        
                         /*Submitting Office Visits by type*/
                         if ($scope.visit.type === 'GENERAL_CHECKUP' ||
                         		$scope.visit.type === 'GENERAL_OPHTHALMOLOGY') {
@@ -425,7 +430,7 @@
                                 $scope.visit.cptCodes = $scope.bills;
 
                                 $scope.visit.labProcedures = $scope.procedures;
-                                //console.log($scope.visit);
+                                console.log($scope.visit);
                                 
                                 $http({
                                     method: 'POST',
@@ -526,14 +531,16 @@
                     		//code: $scope.cptEntry.code
                     	//}
                     	var b = $scope.cptEntry;
+                    	
                     	var err = checkValidCPTCode(b);
                     	if (err) {
                     		$scope.errorMsg = err;
                     		$scope.message = "";
-                    	}
-                    	else {
+                    	} else if ($scope.bills.includes(b)) {
+                    		$scope.errorMsg = "Cannot add duplicate codes";
+                    	} else {
                         	$scope.bills.push(b);
-                        	//console.log($scope.bills);
+                        	console.log($scope.bills);
                     		resetCPTForm();
                     	}
                     	//if (err) {
@@ -1098,23 +1105,23 @@
 								</div>
 								
 								<!-- NEW CPT CODE PANEL -->
-								<div ng-show="visit.type == 'GENERAL_CHECKUP' || visit.type == 'GENERAL_OPHTHALMOLOGY'" class="col-md-4">
+								<div ng-show="visit.type == 'GENERAL_CHECKUP' || visit.type == 'GENERAL_OPHTHALMOLOGY'" class="col-md-5">
 									<div class="panel panel-info">
 										<div class="panel-heading">
 											<h4>CPT Code</h4>
 										</div>
 										<div class="panel-body">
 											<div class="form-group row">
-												<div class="col-xs-6">
+												<div class="col-xs-2">
 													<label>CPT Code:</label>
 												</div>
-												<div class="col-xs-6 radio-box">
+												<div class="col-md-8 radio-box">
 													<div class="form-check">
 														<ul style="list-style: none;">
-															<li ng-repeat="c in cptcodes"><label> <input
+															<li ng-repeat="c in cptcodes"> <input
 																	type="radio" ng-model="$parent.cptEntry"
 																	id="{{c.code}}" name="{{c.description}}" ng-value="c"
-																	required="true" /> {{c.code}} - {{c.cost}}
+																	required="true" /> <label>Code: {{c.code}} Cost: {{c.cost}} <br>Time: {{c.timeRangeMax}} - {{c.timeRangeMin}} Minutes
 															</label></li>
 														</ul>
 													</div>
@@ -1142,7 +1149,7 @@
 														<div class="panel-heading">Added Codes</div>
 														<div class="panel-body">
 															<div class="row" ng-repeat="b in bills">
-																<div class="col-md-4">{{b.code}} - {{b.cost}}</div>
+																<div class="col-md-4">Code: {{b.code}} - {{b.cost}}</div>
 																<div class="col-md-4">
 																	<button class="btn btn-danger btn-xs"
 																		ng-click="removeBill($index)"
