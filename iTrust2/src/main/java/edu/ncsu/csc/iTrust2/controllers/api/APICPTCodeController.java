@@ -169,27 +169,4 @@ public class APICPTCodeController extends APIController {
                     HttpStatus.BAD_REQUEST );
         }
     }
-
-    /**
-     *
-     * @return
-     */
-    @PostMapping ( BASE_PATH + "generateCpts" )
-    public ResponseEntity generateCpts () {
-        final CPTCodeForm code = new CPTCodeForm();
-        code.setCode( 99202 );
-        code.setDescription( "for office visits of 15-29 minutes" );
-        code.setCost( 7500 );
-        code.setVersion( "1.1.0" );
-        code.setIsArchived( false );
-        code.setTimeRangeMin( 15 );
-        code.setTimeRangeMax( 29 );
-        final CPTCode newCode = new CPTCode( code );
-        cptService.save( newCode );
-        System.out.println( cptService.count() );
-
-        loggerUtil.log( TransactionType.CPT_CREATE, "" );
-
-        return new ResponseEntity( HttpStatus.OK );
-    }
 }
