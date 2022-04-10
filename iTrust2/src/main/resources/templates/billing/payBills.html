@@ -1,0 +1,216 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="layout :: head(title=~{::title},links=~{})">
+<title>Billing Member: Pay Bills</title>
+</head>
+<body th:include="layout :: body" th:with="content=~{::content}">
+
+	<div th:fragment="content">
+		<script th:inline="javascript">
+            var app = angular.module('billsApp', []);
+            angular.module("billsApp").controller('billsCtrl', function ($scope, $http) {
+            	
+            	// Fields to construct Patient section of bills page
+            	$scope.patients = [];
+            	$scope.bills = [];
+            	$scope.selectedBill = {};
+            	$scope.selectPatient = {};
+            	$scope.patient = {};
+           
+                //Updates the table with the most current data
+            	$scope.updateTable = function() {
+                    $http.get("/iTrust2/api/v1/patients").then(
+                    		function(response) {
+                                $scope.patients = response.data;
+                                $scope.message = "";
+                                $scope.enableEdit = false;
+                    		}, function(rejection) {
+                    			$scope.cpts = [];
+                    			$scope.cpts = "Could not display CPT Codes"
+                    });
+                    $scope.selectedPatient = "";
+                }
+                
+                $scope.updateBills = function() {
+                	$http.get("/itrust2/api/v1/").then();
+                }
+            	
+            	//Checks for duplicate active CPT Codes
+            	$scope.duplicateCodeCheck = function() {
+                    $scope.isDuplicate = false;
+            		for (var i = 0, len = $scope.cpts.length; i < len; i++) {
+                    	if ($scope.cpt.code == $scope.cpts[i].code) {
+                            $scope.isDuplicate = true
+                    		return $scope.isDuplicate;
+                    	}
+                    }
+            		
+            		return $scope.isDuplicate;
+            	}
+
+            	//Add CPT Code to active codes
+                $scope.addPayment = function() {
+                	if ($scope.duplicateCodeCheck()) {
+                		$scope.errorAdding = "Could not add CPT Code: Code already exists";
+                    } else if ($scope.cpt.description.length > 250) {
+                        $scope.errorAdding = "Could not add CPT Code: Description exceeds character limit of 250";
+                    } else if ($scope.cpt.cost < 0 || (/[+-]?[0-9]+/.test($scope.cpt.cost) == false)) {
+                        $scope.errorAdding = "Could not add CPT Code: Invalid cost entered";
+                    } else if (/^[0-9]{5}$/.test($scope.cpt.code) == false) {
+                        $scope.errorAdding = "Could not add CPT Code: Code doesn't meet specifications";
+                    } else {
+                        $http.post("/iTrust2/api/v1/cptcodes", $scope.cpt).then(
+                            function (response) {
+                                $scope.updateTable();
+                                $scope.cpt.code = "";
+                                $scope.cpt.description = "";
+                                $scope.cpt.cost = "";
+                                $scope.errorAdding = "";
+                            }, function (rejection) {
+                                $scope.errorAdding = "Could not add CPT Code";
+                            });
+                        //scope.updateTable();
+                    }
+                    console.log($scope.errorAdding);
+                }
+                
+                //Builds the CPT object's data
+                $scope.buildPayment = function(payment) {
+					$scope.payment = {};
+					$scope.payment.id = payment.id;
+					$scope.payment.code = payment.code;
+					$scope.payment.description = payment.description;
+					$scope.payment.cost = payment.cost;
+				}
+
+                //Deletes the entire row from the table
+                $scope.removeCPT = function(cpt) {
+                    $http.delete('/iTrust2/api/v1/cptcodes/' + cpt.code).then(
+                        function(response) {
+                            $scope.updateTable();
+                            $scope.message = "";
+                        }, function (rejection) {
+                            $scope.message = "Could not remove CPT code";
+                        })
+                }
+
+                    // update table on each page load
+                    $scope.updateTable();
+                });
+
+        </script>
+
+		<div ng-app="billsApp" ng-controller="billsCtrl as ctrl">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-12">
+						<div class="panel panel-primary">
+
+							<!-- active cpt's header -->
+							<div class="panel-heading">
+								<h3>Billing Member: Pay Bill</h3>
+							</div>
+							<div class="panel-body">
+							    <label>Previous Payments</label>
+								<table class="table table-bordered" name="payment_table">
+
+									<!-- table column headers -->
+									<thead>
+										<tr>
+											<th>Visit ID</th>
+											<th>Patient</th>
+											<th>Date</th>
+											<th>Action</th>
+										</tr>
+									</thead>
+
+									<!-- CPT code for every row, ordered by code ascending -->
+									<tbody>
+										<tr name="cptTableRow" ng-repeat="l in cpts | orderBy: 'code'"
+											codeId={{l.id}}>
+											<td name="codeCell">{{l.code}}</td>
+											<td name="descriptionCell">{{l.description}}</td>
+											<td name="costCell">{{l.cost}}</td>
+											<td name="actionCell"><input type="button" value="Edit"
+												    class="btn btn-primary" ng-click="editCPT(l)" />
+												<input type="button" value="Delete" class="btn btn-primary"
+												    ng-click="removeCPT(l)" /></td>
+										</tr>
+									</tbody>
+								</table>
+								<script type="text/ng-template" id="static">
+                                    <td>{{cpt.</td>
+                                </script>
+
+								<br>
+								<!-- MAKE A PAYMENT SECTION -->
+								<div class="row">
+									<div class="col-md-12">
+										<div class="panel panel-default">
+											<div class="panel-heading">Make a Payment</div>
+											<div class="panel-body">
+												<form class="form-horizontal" role="form" name="viewLogForm"
+													ng-submit="ctrl.searchByDate()">
+													<br>
+
+													<div class="row">
+
+														<!-- Choose Payment Section -->
+														<div class="col-md-5">
+															<label>Bills</label>
+															<div class="row">
+																<div class="col-md-7">
+																	<select class="form-control" name="patient" ng-change="showBills()"
+																		ng-model="Bill" required="required" ng-options="bill as bill.name for bill in bills">
+																	</select>
+																</div>
+															</div>
+														</div>
+
+														<!-- end date -->
+														<div class="col-md-5">
+															<label>Description</label>
+															<div class="row">
+																<div class="col-md-7">
+																	<input type="text" class="form-control"
+																		name="description" ng-model="cpt.description"
+																		required />
+																</div>
+															</div>
+														</div>
+
+
+														<div class="col-md-5">
+															<label>Cost</label>
+															<div class="row">
+																<div class="col-md-7">
+																	<input type="text" class="form-control" name="cost"
+																		ng-model="cpt.cost" required />
+																</div>
+															</div>
+														</div>
+													</div>
+													<div>
+														<button class="btn btn-primary"
+															ng-click="addCode()">Submit</button>
+													</div>
+												</form>
+												<div>
+							                        <!-- <h4 style="color: red" ng-show="addCodeForm.$valid">Code doesn't meet specifications</h4>  -->
+							                        <p style="color: red" ng-model="errorAdding" id="errP">{{errorAdding}}</p>
+						                        </div>
+											</div>
+										</div>
+									</div>
+									<br /> 
+									<a style="padding-left: 30px" href="archivedCPTCodes">Archived CPT Codes</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+</body>
+
+</html>
