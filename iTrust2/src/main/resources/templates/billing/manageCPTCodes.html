@@ -17,6 +17,7 @@
                     		function(response) {
                                 $scope.cpts = response.data;
                                 $scope.message = "";
+                                $scope.enableAdd = true;
                                 $scope.enableEdit = false;
                     		}, function(rejection) {
                     			$scope.cpts = [];
@@ -45,7 +46,7 @@
                         $scope.errorAdding = "Could not add CPT Code: Description exceeds character limit of 250";
                     } else if ($scope.cpt.cost < 0 || (/[+-]?[0-9]+/.test($scope.cpt.cost) == false)) {
                         $scope.errorAdding = "Could not add CPT Code: Invalid cost entered";
-                    } else if (/^[0-9]{5}$/.test($scope.cpt.code) == false) {
+                    } else if ((/^[0-9]{5}$/.test($scope.cpt.code) == false) || $scope.cpt.code == null) {
                         $scope.errorAdding = "Could not add CPT Code: Code doesn't meet specifications";
                     } else {
                         $http.post("/iTrust2/api/v1/cptcodes", $scope.cpt).then(
@@ -66,7 +67,7 @@
                 //Builds the CPT object's data
                 $scope.populateCPT = function(cpt) {
                 	$scope.enableEdit = true;
-					$scope.addMode = false;
+					$scope.enableAdd = false;
 					
 					$scope.cpt = {};
 					$scope.cpt.id = cpt.id;
@@ -77,11 +78,13 @@
 
                 //Edit a CPT code and put it back in the table
                 $scope.editCPT = function() {
+				 	//$scope.enableAdd = false;
+                	
                 	if ($scope.cpt.description.length > 250) {
                         $scope.errorAdding = "Could not add CPT Code: Description exceeds character limit of 250";
                     } else if ($scope.cpt.cost < 0 || (/[+-]?[0-9]+/.test($scope.cpt.cost) == false)) {
                         $scope.errorAdding = "Could not add CPT Code: Invalid cost entered";
-                    } else if (/^[0-9]{5}$/.test($scope.cpt.code) == false) {
+                    } else if ((/^[0-9]{5}$/.test($scope.cpt.code) == false) || $scope.cpt.code == null) {
                         $scope.errorAdding = "Could not add CPT Code: Code doesn't meet specifications";
                     } else {
                         $http.put("/iTrust2/api/v1/cptcodes/" + $scope.cpt.code, $scope.cpt).then(
@@ -94,7 +97,7 @@
                             }, function (rejection) {
                                 $scope.errorAdding = "Could not add CPT Code";
                             });
-                        //scope.updateTable();
+                       //$scope.updateTable();
                     }
                     console.log($scope.errorAdding);
                 }
@@ -205,10 +208,10 @@
 														</div>
 													</div>
 													<div>
-														<button class="btn btn-primary"
-															ng-click="addCode()">Submit</button>
-														<button class="btn btn-primary"
-															ng-click="editCPT(addCodeForm.$valid)">Save</button>
+														<button class="btn btn-primary" ng-class="{disabled : !enableAdd}"
+															name="add" ng-click="enableAdd && addCode()">Submit</button>
+														<button class="btn btn-primary" ng-class="{disabled : !enableEdit}"
+															name="edit" ng-click="enableEdit && editCPT(addCodeForm.$valid)">Save</button>
 													</div>
 												</form>
 												<div>
