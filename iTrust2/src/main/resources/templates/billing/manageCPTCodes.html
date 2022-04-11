@@ -64,7 +64,7 @@
                 }
                 
                 //Builds the CPT object's data
-                $scope.buildCPT = function(cpt) {
+                $scope.populateCPT = function(cpt) {
                 	$scope.enableEdit = true;
 					$scope.addMode = false;
 					
@@ -77,16 +77,14 @@
 
                 //Edit a CPT code and put it back in the table
                 $scope.editCPT = function() {
-                	if ($scope.duplicateCodeCheck()) {
-                		$scope.errorAdding = "Could not add CPT Code: Code already exists";
-                    } else if ($scope.cpt.description.length > 250) {
+                	if ($scope.cpt.description.length > 250) {
                         $scope.errorAdding = "Could not add CPT Code: Description exceeds character limit of 250";
                     } else if ($scope.cpt.cost < 0 || (/[+-]?[0-9]+/.test($scope.cpt.cost) == false)) {
                         $scope.errorAdding = "Could not add CPT Code: Invalid cost entered";
                     } else if (/^[0-9]{5}$/.test($scope.cpt.code) == false) {
                         $scope.errorAdding = "Could not add CPT Code: Code doesn't meet specifications";
                     } else {
-                        $http.put("/iTrust2/api/v1/cptcodes" + $scope.cpt.code, $scope.cpt).then(
+                        $http.put("/iTrust2/api/v1/cptcodes/" + $scope.cpt.code, $scope.cpt).then(
                             function (response) {
                                 $scope.updateTable();
                                 $scope.cpt.code = "";
@@ -150,7 +148,7 @@
 											<td name="descriptionCell">{{l.description}}</td>
 											<td name="costCell">{{l.cost}}</td>
 											<td name="actionCell"><input type="button" value="Edit"
-												    class="btn btn-primary" ng-click="editCPT(l)" />
+												    class="btn btn-primary" ng-click="populateCPT(l)" />
 												<input type="button" value="Delete" class="btn btn-primary"
 												    ng-click="removeCPT(l)" /></td>
 										</tr>
@@ -209,6 +207,8 @@
 													<div>
 														<button class="btn btn-primary"
 															ng-click="addCode()">Submit</button>
+														<button class="btn btn-primary"
+															ng-click="editCPT(addCodeForm.$valid)">Save</button>
 													</div>
 												</form>
 												<div>
