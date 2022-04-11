@@ -6,7 +6,7 @@
 
 	<div th:fragment="content">
 		<script th:inline="javascript">
-            var app = angular.module('billsApp', []);
+            var app = angular.module('billsApp', ['dateTimeServices']);
             angular.module("billsApp").controller('billsCtrl', function ($scope, $http) {
             	
             	// Fields to construct Patient section of bills page
@@ -146,7 +146,7 @@
 								<div class="row">
 									<div class="col-md-12">
 										<div class="panel panel-default">
-											<div class="panel-heading">Make a Payment</div>
+											<div class="panel-heading">Select A Bill</div>
 											<div class="panel-body">
 												<form class="form-horizontal" role="form" name="viewLogForm"
 													ng-submit="ctrl.searchByDate()">
@@ -166,29 +166,54 @@
 															</div>
 														</div>
 
-														<!-- end date -->
 														<div class="col-md-5">
-															<label>Description</label>
+															<label for="date">Date:</label>
 															<div class="row">
 																<div class="col-md-7">
-																	<input type="text" class="form-control"
-																		name="description" ng-model="cpt.description"
-																		required />
-																</div>
-															</div>
-														</div>
-
-
-														<div class="col-md-5">
-															<label>Cost</label>
-															<div class="row">
-																<div class="col-md-7">
-																	<input type="text" class="form-control" name="cost"
-																		ng-model="cpt.cost" required />
+																	<input id="date" type="date" class="form-control" name="date"
+																		ng-model="paymentDate" required="true" />
 																</div>
 															</div>
 														</div>
 													</div>
+													<br> <br>
+													<!-- BOX PAYMENT AMOUNT -->
+													<div class="panel panel-default">
+														<div class="panel-heading"> Make a Payment </div>
+														<div class="panel-body">
+															<label id="billheader">Bill Total</label><br>
+															<input type="text" id="billheader" disabled></input><br>
+															<div class="col-md-5">
+																<label>Payment Method</label><br>
+																<input type="radio" id="cash" name="payment_method" value="Cash">
+																<label for="cash">Cash</label>
+																<br>
+																<input type="radio" id="creditcard" name="payment_method" value="Credit Card">
+																<label for="creditcard">Credit Card</label>
+																<br>
+																<input type="radio" id="check" name="payment_method" value="Check">
+																<label for="check">Check</label>
+																<br>
+																<input type="radio" id="insurance" name="payment_method" value="Insurance">
+																<label for="insurance">Insurance</label>
+																<br>
+															</div>
+															<div class="col-md-5">
+																<!-- PAYMENT METHOD -->
+																<label>Payment Type</label><br>
+																	<input type="radio" id="partialpayment" name="payment_type" value="Partial Payment" ng-model="$payment.method">
+																	<label for="partialpayment">Full Payment</label>
+																	<br>
+																	<input type="radio" id="fullpayment" name="payment_type" value="Full Payment" ng-model="$payment.method">
+																	<label for="check">Partial Payment</label>
+																	<br>
+																<label>Payment Amount</label><br>
+																<input type="number" id="paymentamount" name="paymentamount">
+																
+															</div>
+														</div>
+													</div>
+													<!-- SUBMIT BUTTON -->
 													<div>
 														<button class="btn btn-primary"
 															ng-click="addCode()">Submit</button>
