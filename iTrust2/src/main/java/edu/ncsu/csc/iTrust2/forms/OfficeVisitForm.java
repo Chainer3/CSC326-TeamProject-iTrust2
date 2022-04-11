@@ -556,7 +556,7 @@ public class OfficeVisitForm implements Serializable {
      * @param the
      *            list of CPTCodes
      */
-    public void setCPTCodes ( final List<CPTCodeForm> codes ) {
+    public void setCptCodes ( final List<CPTCodeForm> codes ) {
         this.cptCodes = codes;
     }
 
@@ -565,7 +565,7 @@ public class OfficeVisitForm implements Serializable {
      *
      * @return the list of CPTCodes for this visit.
      */
-    public List<CPTCodeForm> getCPTCodes () {
+    public List<CPTCodeForm> getCptCodes () {
         return cptCodes;
     }
 

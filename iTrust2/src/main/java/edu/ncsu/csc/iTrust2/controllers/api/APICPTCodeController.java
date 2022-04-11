@@ -94,7 +94,7 @@ public class APICPTCodeController extends APIController {
     public List<CPTCode> getCodes () {
         // Return all CPT codes in system
         loggerUtil.log( TransactionType.CPT_VIEW, LoggerUtil.currentUser(), "User viewed a list of all CPT codes" );
-        return cptService.findAll();
+        return cptService.findByIsArchived( false );
     }
 
     /**
