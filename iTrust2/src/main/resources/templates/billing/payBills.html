@@ -1,37 +1,69 @@
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:include="layout :: head(title=~{::title},links=~{})">
+<head th:include="layout :: head(title=~{::title},links=~{::script})">
 <title>Billing Member: Pay Bills</title>
+<script th:src="@{/js/dateTimeService.js}"
+		src="../js/dateTimeService.js"></script>
 </head>
 <body th:include="layout :: body" th:with="content=~{::content}">
 
 	<div th:fragment="content">
 		<script th:inline="javascript">
-            var app = angular.module('billsApp', ['dateTimeServices']);
-            angular.module("billsApp").controller('billsCtrl', function ($scope, $http) {
+            var app = angular.module('myApp', ['dateTimeServices']);
+            //angular.module("cptsApp").controller('billsCtrl', function ($scope, $http, dateTimeService) {
+            app.controller('billsCtrl', function($scope, $http, dateTimeService) {
             	
             	// Fields to construct Patient section of bills page
-            	$scope.patients = [];
-            	$scope.bills = [];
-            	$scope.selectedBill = {};
-            	$scope.selectPatient = {};
-            	$scope.patient = {};
+            	
+            	// The list of bills available for the billing staff member 
+            	$scope.allBills = [];
+            	
+            	// The bill selected by the billing staff member to add a payment
+            	$scope.bill = 0;
+            	
+            	// A list of patients to be selected by the user for a specific bill
+            	//$scope.selectPatient = [];
+            	
+            	// The current 
+            	//$scope.patient = {};
+            	
+            	// String showing what payment method is being used
+            	$scope.paymentMethod = "";
+            	
+            	// The amount input by the user
+            	$scope.paymentAmount = 0;
+            	
+            	$scope.addPayment = {
+            			"amount":0,
+            			"paymentMethod":""
+            	};
+            	
+            	$scope.totalBill = 10;
+            	
+            	$scope.isFull = 0;
            
                 //Updates the table with the most current data
             	$scope.updateTable = function() {
-                    $http.get("/iTrust2/api/v1/patients").then(
+                    $http.get("/iTrust2/api/v1/bills").then(
                     		function(response) {
-                                $scope.patients = response.data;
+                                $scope.allBills = response.data;
                                 $scope.message = "";
                                 $scope.enableEdit = false;
                     		}, function(rejection) {
                     			$scope.cpts = [];
-                    			$scope.cpts = "Could not display CPT Codes"
+                    			$scope.cpts = "Could not display CPT Codes";
                     });
-                    $scope.selectedPatient = "";
+                    $scope.allBills = [
+                    	{"name":"eh", "totalDue":10},
+                    	{"name":"eh2", "totalDue":20}
+                    ];
+                    console.log($scope.allBills);
+                    $scope.bill = "";
+                    $scope.updatePaymentAmount();
                 }
                 
                 $scope.updateBills = function() {
                 	$http.get("/itrust2/api/v1/").then();
+                	$scope.updatePaymentAmount();
                 }
             	
             	//Checks for duplicate active CPT Codes
@@ -39,7 +71,7 @@
                     $scope.isDuplicate = false;
             		for (var i = 0, len = $scope.cpts.length; i < len; i++) {
                     	if ($scope.cpt.code == $scope.cpts[i].code) {
-                            $scope.isDuplicate = true
+                            $scope.isDuplicate = true;
                     		return $scope.isDuplicate;
                     	}
                     }
@@ -72,6 +104,30 @@
                     }
                     console.log($scope.errorAdding);
                 }
+            	
+            	/**
+            	*/
+            	$scope.showBill = function() {
+            		console.log($scope.bill.name);
+            		$scope.updatePaymentAmount();
+            	}
+            	
+            	/**
+            		Updates Payment Amount input field on change
+            		Parameters:
+            			$scope.paymentMethod
+            			$scope.
+            	*/
+            	$scope.updatePaymentAmount = function() {
+            			if ( $scope.bill != 0 ) {
+            				if ( $scope.paymentMethod == 1 ) {
+            					$scope.paymentAmount = $scope.bill.totalDue;
+            				}
+            				$scope.isFull = $scope.paymentMethod
+            			} else {
+            				$scope.isFull = 1;
+            			}
+            	}
                 
                 //Builds the CPT object's data
                 $scope.buildPayment = function(payment) {
@@ -81,17 +137,8 @@
 					$scope.payment.description = payment.description;
 					$scope.payment.cost = payment.cost;
 				}
-
-                //Deletes the entire row from the table
-                $scope.removeCPT = function(cpt) {
-                    $http.delete('/iTrust2/api/v1/cptcodes/' + cpt.code).then(
-                        function(response) {
-                            $scope.updateTable();
-                            $scope.message = "";
-                        }, function (rejection) {
-                            $scope.message = "Could not remove CPT code";
-                        })
-                }
+                
+                
 
                     // update table on each page load
                     $scope.updateTable();
@@ -99,7 +146,7 @@
 
         </script>
 
-		<div ng-app="billsApp" ng-controller="billsCtrl as ctrl">
+		<div ng-app="myApp" ng-controller="billsCtrl as crtl">
 			<div class="container">
 				<div class="row">
 					<div class="col-md-12">
@@ -125,7 +172,7 @@
 
 									<!-- CPT code for every row, ordered by code ascending -->
 									<tbody>
-										<tr name="cptTableRow" ng-repeat="l in cpts | orderBy: 'code'"
+										<tr name="paymentTableRow" ng-repeat="p in payments | orderBy: 'date'"
 											codeId={{l.id}}>
 											<td name="codeCell">{{l.code}}</td>
 											<td name="descriptionCell">{{l.description}}</td>
@@ -159,8 +206,8 @@
 															<label>Bills</label>
 															<div class="row">
 																<div class="col-md-7">
-																	<select class="form-control" name="patient" ng-change="showBills()"
-																		ng-model="Bill" required="required" ng-options="bill as bill.name for bill in bills">
+																	<select class="form-control" name="bills" ng-change="showBill()"
+																		ng-model="bill" value={{b}} required="required" ng-options="b as bill.name for bill in allBills">{{b.name}} <!-- ng-options="b as bill.name for bill in allBills" -->
 																	</select>
 																</div>
 															</div>
@@ -182,7 +229,7 @@
 														<div class="panel-heading"> Make a Payment </div>
 														<div class="panel-body">
 															<label id="billheader">Bill Total</label><br>
-															<input type="text" id="billheader" disabled></input><br>
+															<input type="text" id="billheader" ng-model="totalBill" disabled></input><br>
 															<div class="col-md-5">
 																<label>Payment Method</label><br>
 																<input type="radio" id="cash" name="payment_method" value="Cash">
@@ -201,14 +248,14 @@
 															<div class="col-md-5">
 																<!-- PAYMENT METHOD -->
 																<label>Payment Type</label><br>
-																	<input type="radio" id="partialpayment" name="payment_type" value="Partial Payment" ng-model="$payment.method">
+																	<input type="radio" id="fullpayment" name="payment_type" value=1 ng-model="paymentMethod" ng-change="updatePaymentAmount()">
 																	<label for="partialpayment">Full Payment</label>
 																	<br>
-																	<input type="radio" id="fullpayment" name="payment_type" value="Full Payment" ng-model="$payment.method">
+																	<input type="radio" id="partialpayment" name="payment_type" value="" ng-model="paymentMethod" ng-change="updatePaymentAmount()">
 																	<label for="check">Partial Payment</label>
 																	<br>
 																<label>Payment Amount</label><br>
-																<input type="number" id="paymentamount" name="paymentamount">
+																<input type="number" id="paymentamount" name="paymentamount" ng-model=paymentAmount ng-disabled="isFull">
 																
 															</div>
 														</div>
