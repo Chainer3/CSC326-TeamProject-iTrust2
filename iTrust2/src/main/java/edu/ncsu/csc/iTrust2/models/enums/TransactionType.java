@@ -290,6 +290,35 @@ public enum TransactionType {
     CPT_VIEW ( 923, "Admin views all CPT codes in the system", true ),
 
     /**
+     * Admin added a payment to an existing bill
+     */
+    BILL_ADD_PAYMENT ( 931, "User added a payment to a bill", true ),
+    /**
+     * Admin viewed a bill in the system
+     */
+    BILL_VIEW ( 932, "User viewed a bill in the system", true ),
+    /**
+     * Admin viewed the balance of a bill in the system
+     */
+    BILL_VIEW_BALANCE ( 933, "User viewed the balance of a bill in the system", true ),
+    /**
+     * Admin viewed the status of a bill in the system
+     */
+    BILL_VIEW_STATUS ( 934, "User viewed the status of a bill in the system", true ),
+    /**
+     * Admin viewed the payments of a bill in the system
+     */
+    BILL_VIEW_PAYMENTS ( 935, "User viewed the payments of a bill in the system", true ),
+    /**
+     * User viewed their bills in the system
+     */
+    PATIENT_VIEW_BILLS ( 936, "User viewed their bills in the system", true ),
+    /**
+     * User viewed the bills of a patient in the system
+     */
+    VIEW_PATIENT_BILLS ( 937, "User viewed the bills of a patient in the system", true ),
+
+    /**
      * Attempt to update password fails
      */
     PASSWORD_UPDATE_FAILURE ( 1100, "Failed password update", true ),
