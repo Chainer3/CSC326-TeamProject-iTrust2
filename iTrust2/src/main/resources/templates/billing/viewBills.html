@@ -8,36 +8,49 @@
 		<script th:inline="javascript">
             var app = angular.module('billsApp', []);
             angular.module("billsApp").controller('billsCtrl', function ($scope, $http, $window) {
-            	
+            	//All bills
             	$scope.bills = [];
+            	//All of the patient's bills
+            	$scope.patientBills = [];
             	
             	//Updates the table with the most current data
             	$scope.updateTable = function() {
                     $http.get("/iTrust2/api/v1/bills/").then(
                     		function(response) {
-                                $scope.cpts = response.data;
+                                $scope.bills = response.data;
                                 $scope.message = "";
-                                /* $scope.enableAdd = true;
-                                $scope.enableEdit = false; */
+                                $scope.queryMode = true;
+                                $scope.viewMode = false;
                     		}, function(rejection) {
                     			$scope.bills = [];
                     			$scope.bills = "Could not display CPT Codes";
                             });
             	}
             	
-            	$scope.viewBill = function(bill) {
-            		$window.open('/individualBill');
-            		
-            	    
-            	
+            	//View a specific bill in a changed view
+                $scope.viewBill = function(bill) {
+                    $scope.queryMode = false;
+                    $scope.viewMode = true;
+                    
+                    $scope.populateBill(bill);
             	}
             	
-            
+            	//Search for a patient by username
+            	$scope.searchPatient = function(patientUsername) {
+                    $http.get("/api/v1/patients/" + patientUsername + "/bills").then(
+                    		function(response) {
+                                $scope.bills = response.data;
+                                $scope.message = "";
+                                $scope.queryMode = true;
+                                $scope.viewMode = false;
+                    		}, function(rejection) {
+                    			$scope.bills = [];
+                    			$scope.bills = "Could not find patient";
+                            });
+            	}
+                
                 //Populates the Bill's data in the form
-                $scope.populateCPT = function(bill) {
-            	/*     $scope.enableEdit = true;
-				    $scope.enableAdd = false; */
-				
+                $scope.populateBill = function(bill) {
 				    $scope.bill = {};
 				    $scope.bill.id = bill.id;
 				    $scope.bill.visit.patient.username = bill.visit.patient.username;
@@ -46,6 +59,8 @@
 				    $scope.bill.totalDue = bill.totalDue;
 				    $scope.bill.visit.cptCodes = bill.visit.cptCodes;
 			    }
+            	
+
             });      
             
         </script>
@@ -95,5 +110,11 @@
 		</div>	
 	</div>
 </body>
-
 </html>
+
+
+
+<input type="checkbox" ng-model="checked" aria-label="Toggle ngShow"><br />
+<div class="check-element animate-show-hide" ng-show="checked">
+  I show up when your checkbox is checked.
+</div>
