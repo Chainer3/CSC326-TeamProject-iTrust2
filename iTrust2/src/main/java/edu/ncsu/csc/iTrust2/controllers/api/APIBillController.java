@@ -13,10 +13,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import edu.ncsu.csc.iTrust2.forms.PaymentForm;
+import edu.ncsu.csc.iTrust2.models.Bill;
 import edu.ncsu.csc.iTrust2.models.OfficeVisit;
+import edu.ncsu.csc.iTrust2.models.Payment;
 import edu.ncsu.csc.iTrust2.models.User;
 import edu.ncsu.csc.iTrust2.models.enums.TransactionType;
+import edu.ncsu.csc.iTrust2.services.BillService;
 import edu.ncsu.csc.iTrust2.services.OfficeVisitService;
+import edu.ncsu.csc.iTrust2.services.PaymentService;
 import edu.ncsu.csc.iTrust2.services.UserService;
 import edu.ncsu.csc.iTrust2.utils.LoggerUtil;
 
@@ -61,7 +66,7 @@ public class APIBillController extends APIController {
     @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_BILLING')" )
     @GetMapping ( BASE_PATH + "/bills/{id}" )
     public ResponseEntity getBill ( @PathVariable final Long id ) {
-        final Bill b = billService.findByID( id );
+        final Bill b = billService.findById( id );
 
         if ( b == null ) {
             loggerUtil.log( TransactionType.BILL_VIEW, LoggerUtil.currentUser(), "Failed to find bill with id " + id );
@@ -96,7 +101,7 @@ public class APIBillController extends APIController {
     @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_BILLING')" )
     @GetMapping ( BASE_PATH + "/bills/{id}/status" )
     public ResponseEntity getBillStatus ( @PathVariable final Long id ) {
-        final Bill b = billService.findByID( id );
+        final Bill b = billService.findById( id );
 
         if ( b == null ) {
             loggerUtil.log( TransactionType.BILL_VIEW_STATUS, LoggerUtil.currentUser(),
@@ -120,7 +125,7 @@ public class APIBillController extends APIController {
     @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_BILLING')" )
     @GetMapping ( BASE_PATH + "/bills/{id}/balance" )
     public ResponseEntity getBillBalance ( @PathVariable final Long id ) {
-        final Bill b = billService.findByID( id );
+        final Bill b = billService.findById( id );
 
         if ( b == null ) {
             loggerUtil.log( TransactionType.BILL_VIEW_BALANCE, LoggerUtil.currentUser(),
@@ -144,7 +149,7 @@ public class APIBillController extends APIController {
     @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_BILLING')" )
     @GetMapping ( BASE_PATH + "/bills/{id}/payments" )
     public ResponseEntity getBillPayments ( @PathVariable final Long id ) {
-        final Bill b = billService.findByID( id );
+        final Bill b = billService.findById( id );
 
         if ( b == null ) {
             loggerUtil.log( TransactionType.BILL_VIEW_PAYMENTS, LoggerUtil.currentUser(),
@@ -179,7 +184,7 @@ public class APIBillController extends APIController {
         final List<OfficeVisit> officeVisits = officeVisitService.findByPatient( user );
         final List<Bill> bills = new LinkedList<Bill>();
         for ( final OfficeVisit visit : officeVisits ) {
-            bills.Add( visit.getBill() );
+            bills.add( visit.getBill() );
         }
         loggerUtil.log( TransactionType.VIEW_PATIENT_BILLS, LoggerUtil.currentUser(),
                 "Viewed bills of patient " + username );
@@ -193,12 +198,12 @@ public class APIBillController extends APIController {
      */
     @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_BILLING', 'ROLE_PATIENT')" )
     @GetMapping ( BASE_PATH + "/patient/bills" )
-    public ResponseEntity getUserBills () {
+    public List<Bill> getUserBills () {
         final User user = userService.findByName( LoggerUtil.currentUser() );
         final List<OfficeVisit> officeVisits = officeVisitService.findByPatient( user );
         final List<Bill> bills = new LinkedList<Bill>();
         for ( final OfficeVisit visit : officeVisits ) {
-            bills.Add( visit.getBill() );
+            bills.add( visit.getBill() );
         }
         loggerUtil.log( TransactionType.PATIENT_VIEW_BILLS, LoggerUtil.currentUser(), "Patient viewed bills" );
         return bills;
@@ -217,7 +222,7 @@ public class APIBillController extends APIController {
         try {
             final Payment p = paymentService.build( form );
             paymentService.save( p );
-            final Bill b = billService.findByID( id );
+            final Bill b = billService.findById( id );
 
             if ( b == null ) {
                 loggerUtil.log( TransactionType.BILL_ADD_PAYMENT, LoggerUtil.currentUser(),
@@ -225,15 +230,16 @@ public class APIBillController extends APIController {
                 return new ResponseEntity( errorResponse( "No Bill found for id " + id ), HttpStatus.NOT_FOUND );
             }
             else {
-                if ( b.addPayment( p ) ) {
+                try {
+                    b.addPayment( p );
                     loggerUtil.log( TransactionType.BILL_ADD_PAYMENT, LoggerUtil.currentUser(),
                             "Added payment to bill " + id );
                     return new ResponseEntity( p, HttpStatus.OK );
                 }
-                else {
+                catch ( final IllegalArgumentException e ) {
                     loggerUtil.log( TransactionType.BILL_ADD_PAYMENT, LoggerUtil.currentUser(),
                             "Failed to add payment" );
-                    return new ResponseEntity( errorResponse( "Could not create payment for bill " + id ),
+                    return new ResponseEntity( errorResponse( "Could not create payment for bill: " + e.getMessage() ),
                             HttpStatus.BAD_REQUEST );
                 }
             }
