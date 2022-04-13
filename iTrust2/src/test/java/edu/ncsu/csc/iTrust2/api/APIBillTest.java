@@ -56,7 +56,7 @@ public class APIBillTest {
     }
 
     /**
-     * Tests basic CPT code APIs.
+     * Tests basic billing API end points.
      *
      * @throws Exception
      */
@@ -64,6 +64,18 @@ public class APIBillTest {
     @WithMockUser ( username = "billing", roles = { "USER", "BILLING", "ADMIN" } )
     @Transactional
     public void testBillingAPI () throws Exception {
+
+    }
+
+    /**
+     * Tests billing API end points for patients.
+     *
+     * @throws Exception
+     */
+    @Test
+    @WithMockUser ( username = "patient", roles = { "USER", "PATIENT" } )
+    @Transactional
+    public void testPatientBillingAPI () throws Exception {
 
     }
 

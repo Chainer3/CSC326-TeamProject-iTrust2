@@ -63,7 +63,7 @@ public class APIBillController extends APIController {
      *            The Bill to get.
      * @return The requested Bill.
      */
-    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_BILLING')" )
+    @PreAuthorize ( "hasAnyRole('ROLE_BILLING')" )
     @GetMapping ( BASE_PATH + "/bills/{id}" )
     public ResponseEntity getBill ( @PathVariable final Long id ) {
         final Bill b = billService.findById( id );
@@ -83,7 +83,7 @@ public class APIBillController extends APIController {
      *
      * @return A list of all bills.
      */
-    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_BILLING')" )
+    @PreAuthorize ( "hasAnyRole('ROLE_BILLING')" )
     @GetMapping ( BASE_PATH + "/bills/" )
     public List<Bill> getBills () {
         // Return all bills in system
@@ -98,7 +98,7 @@ public class APIBillController extends APIController {
      *            The Bill to get.
      * @return The status of the bill.
      */
-    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_BILLING')" )
+    @PreAuthorize ( "hasAnyRole('ROLE_BILLING')" )
     @GetMapping ( BASE_PATH + "/bills/{id}/status" )
     public ResponseEntity getBillStatus ( @PathVariable final Long id ) {
         final Bill b = billService.findById( id );
@@ -122,7 +122,7 @@ public class APIBillController extends APIController {
      *            The Bill to get.
      * @return The balance of the bill.
      */
-    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_BILLING')" )
+    @PreAuthorize ( "hasAnyRole('ROLE_BILLING')" )
     @GetMapping ( BASE_PATH + "/bills/{id}/balance" )
     public ResponseEntity getBillBalance ( @PathVariable final Long id ) {
         final Bill b = billService.findById( id );
@@ -146,7 +146,7 @@ public class APIBillController extends APIController {
      *            The Bill to get.
      * @return The payments on the bill.
      */
-    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_BILLING')" )
+    @PreAuthorize ( "hasAnyRole('ROLE_BILLING')" )
     @GetMapping ( BASE_PATH + "/bills/{id}/payments" )
     public ResponseEntity getBillPayments ( @PathVariable final Long id ) {
         final Bill b = billService.findById( id );
@@ -170,7 +170,7 @@ public class APIBillController extends APIController {
      *            The user to query.
      * @return The bills of the specified patient.
      */
-    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_BILLING')" )
+    @PreAuthorize ( "hasAnyRole('ROLE_BILLING')" )
     @GetMapping ( BASE_PATH + "/patients/{username}/bills" )
     public ResponseEntity getPatientBills ( @PathVariable final String username ) {
         final User user = userService.findByName( username );
@@ -196,7 +196,7 @@ public class APIBillController extends APIController {
      *
      * @return The bills of the specified patient.
      */
-    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_BILLING', 'ROLE_PATIENT')" )
+    @PreAuthorize ( "hasAnyRole('ROLE_PATIENT')" )
     @GetMapping ( BASE_PATH + "/patient/bills" )
     public List<Bill> getUserBills () {
         final User user = userService.findByName( LoggerUtil.currentUser() );
@@ -207,6 +207,78 @@ public class APIBillController extends APIController {
         }
         loggerUtil.log( TransactionType.PATIENT_VIEW_BILLS, LoggerUtil.currentUser(), "Patient viewed bills" );
         return bills;
+    }
+
+    /**
+     * Gets a bill's status for the current user.
+     *
+     * @param id
+     *            The Bill to get.
+     * @return The status of the bill.
+     */
+    @PreAuthorize ( "hasAnyRole('ROLE_PATIENT')" )
+    @GetMapping ( BASE_PATH + "/patient/bills/{id}/status" )
+    public ResponseEntity getUserBillStatus ( @PathVariable final Long id ) {
+        final Bill b = billService.findById( id );
+        final User user = userService.findByName( LoggerUtil.currentUser() );
+        if ( b == null || b.getVisit().getPatient() != user ) {
+            loggerUtil.log( TransactionType.BILL_VIEW_STATUS, LoggerUtil.currentUser(),
+                    "Failed to find bill with id " + id );
+            return new ResponseEntity( errorResponse( "No Bill found for id " + id ), HttpStatus.NOT_FOUND );
+        }
+        else {
+            loggerUtil.log( TransactionType.BILL_VIEW_STATUS, LoggerUtil.currentUser(),
+                    "Viewed bill " + id + " status" );
+            return new ResponseEntity( b.getStatus(), HttpStatus.OK );
+        }
+    }
+
+    /**
+     * Gets a bill's balance for the current user.
+     *
+     * @param id
+     *            The Bill to get.
+     * @return The balance of the bill.
+     */
+    @PreAuthorize ( "hasAnyRole('ROLE_PATIENT')" )
+    @GetMapping ( BASE_PATH + "/patient/bills/{id}/balance" )
+    public ResponseEntity getUserBillBalance ( @PathVariable final Long id ) {
+        final Bill b = billService.findById( id );
+        final User user = userService.findByName( LoggerUtil.currentUser() );
+        if ( b == null || b.getVisit().getPatient() != user ) {
+            loggerUtil.log( TransactionType.BILL_VIEW_BALANCE, LoggerUtil.currentUser(),
+                    "Failed to find bill with id " + id );
+            return new ResponseEntity( errorResponse( "No Bill found for id " + id ), HttpStatus.NOT_FOUND );
+        }
+        else {
+            loggerUtil.log( TransactionType.BILL_VIEW_BALANCE, LoggerUtil.currentUser(),
+                    "Viewed bill " + id + " balance" );
+            return new ResponseEntity( b.getBalance(), HttpStatus.OK );
+        }
+    }
+
+    /**
+     * Gets a bill's payments for the current user.
+     *
+     * @param id
+     *            The Bill to get.
+     * @return The payments on the bill.
+     */
+    @PreAuthorize ( "hasAnyRole('ROLE_PATIENT')" )
+    @GetMapping ( BASE_PATH + "/patient/bills/{id}/payments" )
+    public ResponseEntity getUserBillPayments ( @PathVariable final Long id ) {
+        final Bill b = billService.findById( id );
+        final User user = userService.findByName( LoggerUtil.currentUser() );
+        if ( b == null || b.getVisit().getPatient() != user ) {
+            loggerUtil.log( TransactionType.BILL_VIEW_PAYMENTS, LoggerUtil.currentUser(),
+                    "Failed to find bill with id " + id );
+            return new ResponseEntity( errorResponse( "No Bill found for id " + id ), HttpStatus.NOT_FOUND );
+        }
+        else {
+            loggerUtil.log( TransactionType.BILL_VIEW_PAYMENTS, LoggerUtil.currentUser(),
+                    "Viewed bill " + id + " payments" );
+            return new ResponseEntity( b.getPayments(), HttpStatus.OK );
+        }
     }
 
     /**
