@@ -184,7 +184,9 @@ public class APIBillController extends APIController {
         final List<OfficeVisit> officeVisits = officeVisitService.findByPatient( user );
         final List<Bill> bills = new LinkedList<Bill>();
         for ( final OfficeVisit visit : officeVisits ) {
-            bills.add( visit.getBill() );
+            if ( visit.getBill() != null ) {
+                bills.add( visit.getBill() );
+            }
         }
         loggerUtil.log( TransactionType.VIEW_PATIENT_BILLS, LoggerUtil.currentUser(),
                 "Viewed bills of patient " + username );
@@ -203,7 +205,9 @@ public class APIBillController extends APIController {
         final List<OfficeVisit> officeVisits = officeVisitService.findByPatient( user );
         final List<Bill> bills = new LinkedList<Bill>();
         for ( final OfficeVisit visit : officeVisits ) {
-            bills.add( visit.getBill() );
+            if ( visit.getBill() != null ) {
+                bills.add( visit.getBill() );
+            }
         }
         loggerUtil.log( TransactionType.PATIENT_VIEW_BILLS, LoggerUtil.currentUser(), "Patient viewed bills" );
         return bills;
