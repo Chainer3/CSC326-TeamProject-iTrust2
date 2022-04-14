@@ -1,5 +1,7 @@
 package edu.ncsu.csc.iTrust2.services;
 
+import static org.junit.Assert.assertNull;
+
 import java.util.List;
 
 import org.junit.Assert;
@@ -28,6 +30,7 @@ public class CPTCodeServiceTest {
     /** Service holding CPT codes */
     @Autowired
     private CPTCodeService service;
+
     /** List of CPT codes that are not archived */
     private List<CPTCode>  active;
     /** List of CPT codes that are archived */
@@ -37,6 +40,7 @@ public class CPTCodeServiceTest {
     public void setUp () throws Exception {
         active = service.findByIsArchived( false );
         inactive = service.findByIsArchived( true );
+        service.deleteAll();
     }
 
     /**
@@ -54,7 +58,7 @@ public class CPTCodeServiceTest {
         code1.setCode( 99202 );
         code1.setDescription( "for office visits of 15-29 minutes" );
         code1.setCost( 7500 );
-        code1.setVersion( "1.1.0" );
+        code1.setVersion( (long) 1 );
         code1.setIsArchived( false );
         code1.setTimeRangeMin( 15 );
         code1.setTimeRangeMax( 29 );
@@ -73,7 +77,7 @@ public class CPTCodeServiceTest {
         code2.setCode( 99300 );
         code2.setDescription( "for vacciations of 10-15 minutes" );
         code2.setCost( 5000 );
-        code2.setVersion( "1.1.0" );
+        code2.setVersion( (long) 1 );
         code2.setIsArchived( false );
         code2.setTimeRangeMin( 10 );
         code2.setTimeRangeMax( 15 );
@@ -96,18 +100,20 @@ public class CPTCodeServiceTest {
         // Ensures both lists are empty
         active.clear();
         inactive.clear();
+
         // Sets up the first code for testing
         final CPTCode code1 = new CPTCode();
         code1.setId( 1L );
         code1.setCode( 99202 );
         code1.setDescription( "for office visits of 15-29 minutes" );
         code1.setCost( 7500 );
-        code1.setVersion( "1.1.0" );
+        code1.setVersion( (long) 1 );
         code1.setIsArchived( true );
         code1.setTimeRangeMin( 15 );
         code1.setTimeRangeMax( 29 );
         // Saves the first code into the service
         service.save( code1 );
+
         // Gets codes that are archived from the service
         inactive = service.findByIsArchived( true );
         // Ensures that only 1 code was obtained from the service
@@ -121,7 +127,7 @@ public class CPTCodeServiceTest {
         code2.setCode( 99300 );
         code2.setDescription( "for vacciations of 10-15 minutes" );
         code2.setCost( 5000 );
-        code2.setVersion( "1.1.0" );
+        code2.setVersion( (long) 1 );
         code2.setIsArchived( true );
         code2.setTimeRangeMin( 10 );
         code2.setTimeRangeMax( 15 );
@@ -133,6 +139,7 @@ public class CPTCodeServiceTest {
         Assert.assertEquals( 2, inactive.size() );
         // Ensures that the second code in the service matches the one saved
         Assert.assertEquals( inactive.get( 1 ), code2 );
+
     }
 
     /**
@@ -151,7 +158,7 @@ public class CPTCodeServiceTest {
         code1.setCode( 99202 );
         code1.setDescription( "for office visits of 15-29 minutes" );
         code1.setCost( 7500 );
-        code1.setVersion( "1.1.0" );
+        code1.setVersion( (long) 1 );
         code1.setIsArchived( false );
         code1.setTimeRangeMin( 15 );
         code1.setTimeRangeMax( 29 );
@@ -168,7 +175,7 @@ public class CPTCodeServiceTest {
         code2.setCode( 99300 );
         code2.setDescription( "for vacciations of 10-15 minutes" );
         code2.setCost( 5000 );
-        code2.setVersion( "1.1.0" );
+        code2.setVersion( (long) 1 );
         code2.setIsArchived( false );
         code2.setTimeRangeMin( 10 );
         code2.setTimeRangeMax( 15 );
@@ -178,6 +185,9 @@ public class CPTCodeServiceTest {
         final CPTCode newcode = service.findByCode( code2.getCode() );
         // Ensures the code matches the code saved
         Assert.assertEquals( newcode, code2 );
+
+        final CPTCode code3 = service.findByCode( 2326 );
+        assertNull( code3 );
     }
 
 }
