@@ -31,7 +31,17 @@ public class CPTCodeService extends Service<CPTCode, Long> {
      * @return the CPT code with that number
      */
     public CPTCode findByCode ( final long code ) {
-        return repository.findByCode( code );
+        final List<CPTCode> list = repository.findByCode( code );
+        CPTCode active = null;
+        if ( list.size() > 0 ) {
+            active = list.get( 0 );
+            for ( int i = 1; i < list.size(); i++ ) {
+                if ( active.getVersion() < list.get( i ).getVersion() ) {
+                    active = list.get( i );
+                }
+            }
+        }
+        return active;
     }
 
     /**
@@ -55,17 +65,22 @@ public class CPTCodeService extends Service<CPTCode, Long> {
      */
     public CPTCode build ( final CPTCodeForm form ) {
         final CPTCode cpt = new CPTCode();
-        final CPTCode existing = findByCode( form.getCode() );
+        // final CPTCode existing = findByCode( form.getCode() );
         cpt.setCode( form.getCode() );
         cpt.setCost( form.getCost() );
         cpt.setDescription( form.getDescription() );
         cpt.setIsArchived( form.getIsArchived() );
         cpt.setTimeRangeMax( form.getTimeRangeMax() );
         cpt.setTimeRangeMin( form.getTimeRangeMin() );
-        cpt.setVersion( form.getVersion() );
-        if ( existing != null ) {
-            cpt.setId( existing.getId() );
+        if ( form.getVersion() > 0 ) {
+            cpt.setVersion( form.getVersion() );
         }
+        else {
+            cpt.setVersion( 1 );
+        }
+        // if ( existing != null ) {
+        // cpt.setId( existing.getId() );
+        // }
         return cpt;
     }
 }

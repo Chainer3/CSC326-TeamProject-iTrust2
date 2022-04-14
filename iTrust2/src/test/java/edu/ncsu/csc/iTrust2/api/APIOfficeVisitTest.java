@@ -459,7 +459,7 @@ public class APIOfficeVisitTest {
         c.setIsArchived( false );
         c.setTimeRangeMax( 30 );
         c.setTimeRangeMin( 20 );
-        c.setVersion( "1.1.0" );
+        c.setVersion( (long) 1 );
         list.add( c );
 
         final CPTCode c2 = new CPTCode();
@@ -469,7 +469,7 @@ public class APIOfficeVisitTest {
         c2.setIsArchived( false );
         c2.setTimeRangeMax( 60 );
         c2.setTimeRangeMin( 45 );
-        c2.setVersion( "1.1.1" );
+        c2.setVersion( (long) 1 );
         list.add( c2 );
 
         final CPTCode c3 = new CPTCode();
@@ -479,15 +479,15 @@ public class APIOfficeVisitTest {
         c3.setIsArchived( false );
         c3.setTimeRangeMax( 0 );
         c3.setTimeRangeMin( 0 );
-        c3.setVersion( "1.2.1" );
+        c3.setVersion( (long) 1 );
         list.add( c3 );
 
-        form.setCPTCodes( list.stream().map( CPTCodeForm::new ).collect( Collectors.toList() ) );
+        form.setCptCodes( list.stream().map( CPTCodeForm::new ).collect( Collectors.toList() ) );
 
         final OfficeVisit visit = officeVisitService.build( form );
 
-        final List<CPTCode> list2 = visit.getCPTCodes();
-        assertEquals( 3, visit.getCPTCodes().size() );
+        final List<CPTCode> list2 = visit.getCptCodes();
+        assertEquals( 3, visit.getCptCodes().size() );
 
         assertEquals( 99205, list2.get( 0 ).getCode() );
         assertEquals( 7500, list2.get( 0 ).getCost() );
@@ -495,7 +495,7 @@ public class APIOfficeVisitTest {
         assertFalse( list2.get( 0 ).getIsArchived() );
         assertEquals( 30, list2.get( 0 ).getTimeRangeMax() );
         assertEquals( 20, list2.get( 0 ).getTimeRangeMin() );
-        assertEquals( "1.1.0", list2.get( 0 ).getVersion() );
+        assertEquals( 1, (long) list2.get( 0 ).getVersion() );
 
         assertEquals( 99206, list2.get( 1 ).getCode() );
         assertEquals( 10000, list2.get( 1 ).getCost() );
@@ -503,7 +503,7 @@ public class APIOfficeVisitTest {
         assertFalse( list2.get( 1 ).getIsArchived() );
         assertEquals( 60, list2.get( 1 ).getTimeRangeMax() );
         assertEquals( 45, list2.get( 1 ).getTimeRangeMin() );
-        assertEquals( "1.1.1", list2.get( 1 ).getVersion() );
+        assertEquals( 1, (long) list2.get( 1 ).getVersion() );
 
         assertEquals( 99207, list2.get( 2 ).getCode() );
         assertEquals( 5000, list2.get( 2 ).getCost() );
@@ -511,7 +511,7 @@ public class APIOfficeVisitTest {
         assertFalse( list2.get( 2 ).getIsArchived() );
         assertEquals( 0, list2.get( 2 ).getTimeRangeMax() );
         assertEquals( 0, list2.get( 2 ).getTimeRangeMin() );
-        assertEquals( "1.2.1", list2.get( 2 ).getVersion() );
+        assertEquals( 1, (long) list2.get( 2 ).getVersion() );
 
     }
 

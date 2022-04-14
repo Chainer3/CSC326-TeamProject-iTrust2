@@ -139,6 +139,13 @@ public class OfficeVisit extends DomainObject {
     @JoinColumn ( name = "ophthalmologymetrics_id" )
     private OphthalmologyMetrics ophthalmologyMetrics;
 
+    /**
+     * The bill for this office visit.
+     */
+    @OneToOne ( cascade = CascadeType.ALL )
+    @JoinColumn ( name = "bill_id" )
+    private Bill                 bill;
+
     /** For Hibernate/Thymeleaf _must_ be an empty constructor */
     public OfficeVisit () {
     }
@@ -482,7 +489,7 @@ public class OfficeVisit extends DomainObject {
      *
      * @return the CPTCodes of this OfficeVisit
      */
-    public List<CPTCode> getCPTCodes () {
+    public List<CPTCode> getCptCodes () {
         return cptCodes;
     }
 
@@ -492,8 +499,27 @@ public class OfficeVisit extends DomainObject {
      * @param codes
      *            the value to set the CPTCodes list to
      */
-    public void setCPTCodes ( final List<CPTCode> codes ) {
+    public void setCptCodes ( final List<CPTCode> codes ) {
         this.cptCodes = codes;
+    }
+
+    /**
+     * Gets the bill for this office visit.
+     *
+     * @return the bill for this office visit.
+     */
+    public Bill getBill () {
+        return bill;
+    }
+
+    /**
+     * Sets the bill for this visit to the parameter.
+     *
+     * @param bill
+     *            the value to set the bill field to
+     */
+    public void setBill ( final Bill bill ) {
+        this.bill = bill;
     }
 
 }
