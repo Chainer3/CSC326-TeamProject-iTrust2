@@ -32,37 +32,35 @@
             	// The amount input by the user
             	$scope.paymentAmount = 0;
             	
-            	$scope.addPayment = {
+            	$scope.newPayment = {
             			"amount":0,
-            			"paymentMethod":""
+            			"paymentMethod":"",
+            			"date":""
             	};
             	
-            	$scope.totalBill = 10;
+            	$scope.totalBill = 0;
             	
             	$scope.isFull = 0;
            
                 //Updates the table with the most current data
             	$scope.updateTable = function() {
-                    $http.get("/iTrust2/api/v1/bills").then(
+                    /**$http.get("/iTrust2/api/v1/bills").then(
+                    		$scope.newPayment.amount = 0,
                     		function(response) {
                                 $scope.allBills = response.data;
-                                $scope.message = "";
-                                $scope.enableEdit = false;
                     		}, function(rejection) {
-                    			$scope.cpts = [];
-                    			$scope.cpts = "Could not display CPT Codes";
-                    });
+                    });*/
                     $scope.allBills = [
                     	{"name":"eh", "totalDue":10},
                     	{"name":"eh2", "totalDue":20}
-                    ];
+                    ];s
                     console.log($scope.allBills);
                     $scope.bill = "";
                     $scope.updatePaymentAmount();
                 }
                 
                 $scope.updateBills = function() {
-                	$http.get("/itrust2/api/v1/").then();
+                	$http.get("/itrust2/api/v1/bills").then();
                 	$scope.updatePaymentAmount();
                 }
             	
@@ -81,34 +79,32 @@
 
             	//Add CPT Code to active codes
                 $scope.addPayment = function() {
-                	if ($scope.duplicateCodeCheck()) {
-                		$scope.errorAdding = "Could not add CPT Code: Code already exists";
-                    } else if ($scope.cpt.description.length > 250) {
-                        $scope.errorAdding = "Could not add CPT Code: Description exceeds character limit of 250";
-                    } else if ($scope.cpt.cost < 0 || (/[+-]?[0-9]+/.test($scope.cpt.cost) == false)) {
-                        $scope.errorAdding = "Could not add CPT Code: Invalid cost entered";
-                    } else if (/^[0-9]{5}$/.test($scope.cpt.code) == false) {
-                        $scope.errorAdding = "Could not add CPT Code: Code doesn't meet specifications";
+            		if ( !$scope.bill ) {
+            			$scope.errorAdding = "Please select a bill";
+            		} else if ($scope.newPayment.amount <= 0) {
+                		$scope.errorAdding = "Could not add Payment: Payment amount must be greater than 0";
+                    } else if ( $scope.newPayment.amount > $scope.bill.totalDue) {
+                        $scope.errorAdding = "Could not add Payment: Amount must be less than the total bill";
+                    } else if (!newPayment.date == "") {
+                    	$scope.errorAdding = "Please enter a date";
                     } else {
-                        $http.post("/iTrust2/api/v1/cptcodes", $scope.cpt).then(
+                        console.log("Correct payment");
+                        $scope.errorAdding = "";
+                        $http.post("/iTrust2/api/v1/" + $scope.bill.id + "/payments/", $scope.newPayment).then(
                             function (response) {
                                 $scope.updateTable();
-                                $scope.cpt.code = "";
-                                $scope.cpt.description = "";
-                                $scope.cpt.cost = "";
-                                $scope.errorAdding = "";
                             }, function (rejection) {
-                                $scope.errorAdding = "Could not add CPT Code";
+                                $scope.errorAdding = "Could not add Payment";
                             });
                         //scope.updateTable();
                     }
-                    console.log($scope.errorAdding);
                 }
             	
             	/**
             	*/
             	$scope.showBill = function() {
-            		console.log($scope.bill.name);
+            		console.log($scope.bill);
+            		$scope.totalBill = $scope.bill.totalDue;
             		$scope.updatePaymentAmount();
             	}
             	
@@ -119,26 +115,17 @@
             			$scope.
             	*/
             	$scope.updatePaymentAmount = function() {
+            			console.log( "Bill: " + $scope.bill );
+            			console.log( "Payment: " + $scope.newPayment );
             			if ( $scope.bill != 0 ) {
             				if ( $scope.paymentMethod == 1 ) {
-            					$scope.paymentAmount = $scope.bill.totalDue;
+            					$scope.newPayment.amount = $scope.bill.totalDue;
             				}
             				$scope.isFull = $scope.paymentMethod
             			} else {
             				$scope.isFull = 1;
             			}
             	}
-                
-                //Builds the CPT object's data
-                $scope.buildPayment = function(payment) {
-					$scope.payment = {};
-					$scope.payment.id = payment.id;
-					$scope.payment.code = payment.code;
-					$scope.payment.description = payment.description;
-					$scope.payment.cost = payment.cost;
-				}
-                
-                
 
                     // update table on each page load
                     $scope.updateTable();
@@ -207,7 +194,7 @@
 															<div class="row">
 																<div class="col-md-7">
 																	<select class="form-control" name="bills" ng-change="showBill()"
-																		ng-model="bill" value={{b}} required="required" ng-options="b as bill.name for bill in allBills">{{b.name}} <!-- ng-options="b as bill.name for bill in allBills" -->
+																		ng-model="bill" value={{b}} required="required" ng-options="b for bill in allBills"><!-- ng-options="b as bill.name for bill in allBills" -->
 																	</select>
 																</div>
 															</div>
@@ -218,7 +205,7 @@
 															<div class="row">
 																<div class="col-md-7">
 																	<input id="date" type="date" class="form-control" name="date"
-																		ng-model="paymentDate" required="true" />
+																		ng-model="newPayment.date" required="true" />
 																</div>
 															</div>
 														</div>
@@ -232,16 +219,16 @@
 															<input type="text" id="billheader" ng-model="totalBill" disabled></input><br>
 															<div class="col-md-5">
 																<label>Payment Method</label><br>
-																<input type="radio" id="cash" name="payment_method" value="Cash">
+																<input type="radio" id="cash" name="payment_method" value="Cash" ng-model="newPayment.method" required="true">
 																<label for="cash">Cash</label>
 																<br>
-																<input type="radio" id="creditcard" name="payment_method" value="Credit Card">
+																<input type="radio" id="creditcard" name="payment_method" value="Credit Card" ng-model="newPayment.method">
 																<label for="creditcard">Credit Card</label>
 																<br>
-																<input type="radio" id="check" name="payment_method" value="Check">
+																<input type="radio" id="check" name="payment_method" value="Check" ng-model="newPayment.method">
 																<label for="check">Check</label>
 																<br>
-																<input type="radio" id="insurance" name="payment_method" value="Insurance">
+																<input type="radio" id="insurance" name="payment_method" value="Insurance" ng-model="newPayment.method">
 																<label for="insurance">Insurance</label>
 																<br>
 															</div>
@@ -255,7 +242,7 @@
 																	<label for="check">Partial Payment</label>
 																	<br>
 																<label>Payment Amount</label><br>
-																<input type="number" id="paymentamount" name="paymentamount" ng-model=paymentAmount ng-disabled="isFull">
+																<input type="number" id="paymentamount" name="paymentamount" ng-model=newPayment.amount ng-disabled="isFull">
 																
 															</div>
 														</div>
@@ -263,7 +250,7 @@
 													<!-- SUBMIT BUTTON -->
 													<div>
 														<button class="btn btn-primary"
-															ng-click="addCode()">Submit</button>
+															ng-click="addPayment()">Submit</button>
 													</div>
 												</form>
 												<div>
