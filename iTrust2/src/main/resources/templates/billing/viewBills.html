@@ -7,47 +7,77 @@
 	<div th:fragment="content">
 		<script th:inline="javascript">
             var app = angular.module('billsApp', []);
-            angular.module("billsApp").controller('billsCtrl', function ($scope, $http, $window) {
+            
+      	    /**
+      	     * A filter to humanize the text to be more user friendly.
+      	     */
+      	    app.filter('humanize', function() {
+      		    return function (input) {
+      			    if (input == null || input == "") {
+      			  	  return "";
+      			    }
+
+      			    return input.toLowerCase().split('_')
+      					  .map((word) => word.charAt(0).toUpperCase() + word.substring(1))
+      					  .join(' ');
+      		    }
+      	    });
+      	  
+            app.controller('billsCtrl', function ($scope, $http) {
+            	
             	//All bills
             	$scope.bills = [];
             	//All of the patient's bills
             	$scope.patientBills = [];
+            	//False shows normal table results
+            	$scope.showMode = false;
             	
             	//Updates the table with the most current data
-            	$scope.updateTable = function() {
+            	$scope.updateBillTable = function() {
                     $http.get("/iTrust2/api/v1/bills/").then(
                     		function(response) {
                                 $scope.bills = response.data;
                                 $scope.message = "";
-                                $scope.queryMode = true;
-                                $scope.viewMode = false;
+                                $scope.viewMode = true;
+                                $scope.showMode = false;
                     		}, function(rejection) {
                     			$scope.bills = [];
                     			$scope.bills = "Could not display CPT Codes";
                             });
             	}
             	
-            	//View a specific bill in a changed view
-                $scope.viewBill = function(bill) {
-                    $scope.queryMode = false;
-                    $scope.viewMode = true;
-                    
-                    $scope.populateBill(bill);
-            	}
-            	
-            	//Search for a patient by username
-            	$scope.searchPatient = function(patientUsername) {
-                    $http.get("/api/v1/patients/" + patientUsername + "/bills").then(
+            	//Updates the table of a patient's bills
+/*             	$scope.updatePatientBillTable = function() {
+            		$http.get("/iTrust2/api/v1/bills/").then(
                     		function(response) {
                                 $scope.bills = response.data;
+                                $scope.message = "";
+                                $scope.viewMode = true;
+                                $scope.showMode = false;
+                    		}, function(rejection) {
+                    			$scope.bills = [];
+                    			$scope.bills = "Could not display CPT Codes";
+                            });
+            	} */
+            	
+            	//View a specific bill in a changed view
+                $scope.viewBill = function() {
+                    $scope.showMode = $scope.showMode ? false : true;
+                }
+            	
+            	//Search for a patient by username
+/*             	$scope.searchPatient = function(patientUsername) {
+                    $http.get("/api/v1/patients/" + patientUsername + "/bills").then(
+                    		function(response) {
+                                $scope.patientBills = response.data;
                                 $scope.message = "";
                                 $scope.queryMode = true;
                                 $scope.viewMode = false;
                     		}, function(rejection) {
-                    			$scope.bills = [];
-                    			$scope.bills = "Could not find patient";
+                    			$scope.patientBills = [];
+                    			$scope.patientBills = "Could not find patient";
                             });
-            	}
+            	} */
                 
                 //Populates the Bill's data in the form
                 $scope.populateBill = function(bill) {
@@ -64,7 +94,7 @@
             });      
             
         </script>
-        
+
 		<div ng-app="billsApp" ng-controller="billsCtrl as ctrl">
 			<div class="container">
 				<div class="row">
@@ -91,15 +121,70 @@
 
 									<!-- CPT code for every row, ordered by code ascending -->
 									<tbody>
-										<tr name="cptTableRow" ng-repeat="l in cpts | orderBy: 'code'"
-											codeId={{l.id}}>
+										<tr name="billTableRow" ng-repeat="l in bills | orderBy: 'l.date'"
+											billId={{l.id}}>
 											<td name="usernameCell">{{l.visit.patient.username}}</td>
 											<td name="visitDateCell">{{l.visit.date}}</td>
 											<td name="statusCell">{{l.isPaid}}</td>
 											<td name="dueCell">{{l.totalDue}}</td>
-											<td name="actionCell"><input type="button" 
-											    ng-click="viewBill(l)" value="View" /></input></td>
+											<td name="actionCell"><input type="button"
+												ng-click="viewBill()" value="View" /></td>
 										</tr>
+										<div ng-show="showMode">
+											<!-- Display the information about the selected bill -->
+											<div class='panel panel-default'
+												ng-if="bill && showMode">
+
+												<!-- Show correct heading based on what button was pressed -->
+												<div class="panel-heading">
+													<h3>Bill Details</h3>
+												</div>
+												<div class="panel-body">
+												    <div class="row">
+									                    <div class="form-group col-md-2">
+										                    <label for="firstName">First Name:</label> <input id="first" type="text"
+											                       class="form-control" value="{{bill.visit.patient.firstName}}" name="first" disabled />
+											            </div>
+									                    <div class="form-group col-md-2">
+										                    <label for="lastName">Last Name:</label> <input id="last" type="text"
+											                       class="form-control" value="{{bill.visit.patient.lastName}}" name="last" disabled />
+									                    </div>
+									                    <div class="form-group col-md-2">
+										                    <label for="date">Date:</label> <input id="date" type="text"
+											                       class="form-control" value="{{bill.visit.date  | date :
+													               'MM/dd/yyyy'}}" name="date" disabled />
+									                    </div>
+									                </div>
+												    <div class="row">
+												        <div class="form-group col-md-2">
+												            <label for="hcp">HCP:</label> <input id="hcp" type="text"
+											                       class="form-control" value="{{bill.visit.hcp}}" name="hcps" disabled />
+											            </div>      
+												    </div>
+									               
+									            </div>
+									            <div class="form-group col-md-2">
+										            <label for="time">Time:</label> <input id="time" type="time"
+											            name="time" class="form-control" value="{{visit.date  | date :
+													    'HH:mm'}}" disabled/>
+									            </div>
+									            <div class="form-group col-md-2">
+										            <label>Provider:</label> <input type="text"
+											name="provider" class="form-control" value="{{visit.hcp.username}}" disabled/>
+									</div>
+									<div class="form-group col-md-2 text-right">
+										<div class="checkbox">
+											<label> <input type="checkbox" name="preScheduled"
+												class="checkbox" ng-model="visit.prescheduled" disabled>Prescheduled?
+											</label>
+										</div>
+									</div>
+								</div>	    
+												
+												</div>
+												
+											</div>
+										</div>
 									</tbody>
 								</table>
 							</div>
@@ -107,14 +192,14 @@
 					</div>
 				</div>
 			</div>
-		</div>	
+		</div>
 	</div>
 </body>
 </html>
 
 
 
-<input type="checkbox" ng-model="checked" aria-label="Toggle ngShow"><br />
-<div class="check-element animate-show-hide" ng-show="checked">
-  I show up when your checkbox is checked.
-</div>
+<input type="checkbox" ng-model="checked" aria-label="Toggle ngShow">
+<br />
+<div class="check-element animate-show-hide" ng-show="checked">I
+	show up when your checkbox is checked.</div>
