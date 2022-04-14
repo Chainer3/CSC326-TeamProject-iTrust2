@@ -85,7 +85,7 @@ public class Bill extends DomainObject {
             due += visit.getCptCodes().get( i ).getCost();
         }
         setTotalDue( due );
-        visit.setBill( this );
+
     }
 
     /**
@@ -228,7 +228,7 @@ public class Bill extends DomainObject {
         if ( this.isPaid ) {
             return "Paid";
         }
-        else if ( Duration.between( visit.getDate(), ZonedDateTime.now() ).toDays() > DAYS_UNTIL_DELINQUENCY ) {
+        else if ( Duration.between( getVisit().getDate(), ZonedDateTime.now() ).toDays() > DAYS_UNTIL_DELINQUENCY ) {
             return "Delinquent";
         }
         else {

@@ -34,6 +34,7 @@ import edu.ncsu.csc.iTrust2.forms.UserForm;
 import edu.ncsu.csc.iTrust2.models.Bill;
 import edu.ncsu.csc.iTrust2.models.CPTCode;
 import edu.ncsu.csc.iTrust2.models.Hospital;
+import edu.ncsu.csc.iTrust2.models.OfficeVisit;
 import edu.ncsu.csc.iTrust2.models.Patient;
 import edu.ncsu.csc.iTrust2.models.Payment;
 import edu.ncsu.csc.iTrust2.models.Personnel;
@@ -115,7 +116,7 @@ public class APIBillTest {
         code1.setCode( 99202 );
         code1.setDescription( "for office visits of 15-29 minutes" );
         code1.setCost( 7500 );
-        code1.setVersion( "1.1.0" );
+        code1.setVersion( 1 );
         code1.setIsArchived( false );
         code1.setTimeRangeMin( 15 );
         code1.setTimeRangeMax( 29 );
@@ -143,7 +144,8 @@ public class APIBillTest {
         visit.setCptCodes( codes );
 
         /* Create the Office Visit */
-        officeVisitService.save( officeVisitService.build( visit ) );
+        final OfficeVisit ov1 = officeVisitService.build( visit );
+        officeVisitService.save( ov1 );
 
         final OfficeVisitForm visit2 = new OfficeVisitForm();
         visit2.setDate( "2030-11-19T04:50:00.000-05:00" );
@@ -170,13 +172,14 @@ public class APIBillTest {
         setupOfficeVisit();
 
         // Verify bills have been added
-        final String allBillsContent = mvc.perform( get( "/api/v1/bills/" ) ).andExpect( status().isOk() ).andReturn()
-                .getResponse().getContentAsString();
+        final String allBillsContent = mvc
+                .perform( get( "/api/v1/bills/" ).contentType( MediaType.APPLICATION_JSON_VALUE ) )
+                .andExpect( status().isOk() ).andReturn().getResponse().getContentAsString();
         final List<Bill> allBills = TestUtils.gson().fromJson( allBillsContent, new TypeToken<List<Bill>>() {
         }.getType() );
         assertEquals( 2, allBills.size() );
-
-        final Bill bill = allBills.get( 0 );
+        assertEquals( 2, billService.findAll().size() );
+        final Bill bill = billService.findAll().get( 0 );
 
         // Retrieve by ID
         final String billGetCheck = mvc.perform( get( "/api/v1/bills/" + bill.getId() ) ).andExpect( status().isOk() )
@@ -249,8 +252,7 @@ public class APIBillTest {
         final List<Bill> allBills = TestUtils.gson().fromJson( allBillsContent, new TypeToken<List<Bill>>() {
         }.getType() );
         assertEquals( 1, allBills.size() );
-
-        final Bill bill = allBills.get( 0 );
+        final Bill bill = billService.findById( allBills.get( 0 ).getId() );
 
         // Retrieve by ID
         final String billGetCheck = mvc.perform( get( "/api/v1/patient/bills/" + bill.getId() ) )

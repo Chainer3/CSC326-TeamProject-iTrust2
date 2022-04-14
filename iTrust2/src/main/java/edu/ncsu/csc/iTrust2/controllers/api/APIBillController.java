@@ -214,6 +214,32 @@ public class APIBillController extends APIController {
     }
 
     /**
+     * Gets one of the currently signed in patient's bills.
+     *
+     * @return The bill of the specified patient.
+     */
+    @PreAuthorize ( "hasAnyRole('ROLE_PATIENT')" )
+    @GetMapping ( BASE_PATH + "/patient/bills/{id}" )
+    public ResponseEntity getUserBill ( @PathVariable final Long id ) {
+        final User user = userService.findByName( LoggerUtil.currentUser() );
+        final List<OfficeVisit> officeVisits = officeVisitService.findByPatient( user );
+        final List<Bill> bills = new LinkedList<Bill>();
+        for ( final OfficeVisit visit : officeVisits ) {
+            if ( visit.getBill() != null ) {
+                bills.add( visit.getBill() );
+            }
+        }
+        Bill bill = null;
+        for ( int i = 0; i < bills.size(); i++ ) {
+            if ( bills.get( i ).getId().equals( id ) ) {
+                bill = bills.get( i );
+            }
+        }
+        loggerUtil.log( TransactionType.PATIENT_VIEW_BILLS, LoggerUtil.currentUser(), "Patient viewed bill" );
+        return new ResponseEntity( bill, HttpStatus.OK );
+    }
+
+    /**
      * Gets a bill's status for the current user.
      *
      * @param id
