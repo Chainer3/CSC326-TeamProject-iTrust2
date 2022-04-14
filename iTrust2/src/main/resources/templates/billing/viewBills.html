@@ -135,7 +135,6 @@
 											<div class='panel panel-default'
 												ng-if="bill && showMode">
 
-												<!-- Show correct heading based on what button was pressed -->
 												<div class="panel-heading">
 													<h3>Bill Details</h3>
 												</div>
@@ -150,27 +149,37 @@
 											                       class="form-control" value="{{bill.visit.patient.lastName}}" name="last" disabled />
 									                    </div>
 									                    <div class="form-group col-md-2">
-										                    <label for="date">Date:</label> <input id="date" type="text"
+										                    <label for="date">Date of Visit:</label> <input id="date" type="text"
 											                       class="form-control" value="{{bill.visit.date  | date :
 													               'MM/dd/yyyy'}}" name="date" disabled />
 									                    </div>
 									                </div>
 												    <div class="row">
 												        <div class="form-group col-md-2">
-												            <label for="hcp">HCP:</label> <input id="hcp" type="text"
-											                       class="form-control" value="{{bill.visit.hcp}}" name="hcps" disabled />
-											            </div>      
+												            <label for="hcp">Provider:</label> <input id="hcp" type="text"
+											                       class="form-control" value="{{bill.visit.hcp}}" name="hcp" disabled />
+											            </div>   
+											            <div class="form-group col-md-2">
+												            <label for="hcp">Status:</label> <input id="status" type="text"
+											                       class="form-control" value="{{bill.isPaid}}" name="status" disabled />
+											            </div>
+											            <div class="form-group col-md-2">
+												            <label for="hcp">Amount Due:</label> <input id="due" type="text"
+											                       class="form-control" value="{{bill.totalDue}}" name="due" disabled />
+											            </div>    
 												    </div>
-									               
+												    <div class="row">
+									                    <div class="form-group col-md-2">
+												            <label for="hcp">CPT Codes:</label> <input id="cpts" type="text"
+											                       class="form-control" value="{{bill.visit.cptCodes}}" name="cptsList" 
+											                       ng-repeat="c in cpts" cptId={{c.id}}>
+											                       <p name="code">{{bill.visit.cptCodes.cpt.code}}></p>
+											                       <p name="description">{{bill.visit.cptCodes.cpt.description}}></p>
+											                       <p name="cost">{{bill.visit.cptCodes.cpt.cost}}></p>
+											billId={{l.id}}> />
+											            </div>  
 									            </div>
-									            <div class="form-group col-md-2">
-										            <label for="time">Time:</label> <input id="time" type="time"
-											            name="time" class="form-control" value="{{visit.date  | date :
-													    'HH:mm'}}" disabled/>
-									            </div>
-									            <div class="form-group col-md-2">
-										            <label>Provider:</label> <input type="text"
-											name="provider" class="form-control" value="{{visit.hcp.username}}" disabled/>
+									          
 									</div>
 									<div class="form-group col-md-2 text-right">
 										<div class="checkbox">
