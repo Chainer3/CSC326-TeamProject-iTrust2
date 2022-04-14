@@ -196,6 +196,8 @@ public class APIBillTest {
 
         assertEquals( bill.getStatus(), status );
 
+        mvc.perform( get( "/api/v1/bills/0/status" ) ).andExpect( status().isNotFound() );
+
         // get balance
         final String balanceContent = mvc.perform( get( "/api/v1/bills/" + bill.getId() + "/balance" ) )
                 .andExpect( status().isOk() ).andReturn().getResponse().getContentAsString();
@@ -203,6 +205,8 @@ public class APIBillTest {
         }.getType() );
 
         assertEquals( bill.getBalance(), balance );
+
+        mvc.perform( get( "/api/v1/bills/0/balance" ) ).andExpect( status().isNotFound() );
 
         // get payments
         String paymentsContent = mvc.perform( get( "/api/v1/bills/" + bill.getId() + "/payments" ) )
@@ -222,6 +226,9 @@ public class APIBillTest {
         mvc.perform( post( "/api/v1/bills/" + bill.getId() + "/payments" ).contentType( MediaType.APPLICATION_JSON )
                 .content( TestUtils.asJsonString( payment ) ) ).andExpect( status().isOk() );
 
+        mvc.perform( post( "/api/v1/bills/0/payments" ).contentType( MediaType.APPLICATION_JSON )
+                .content( TestUtils.asJsonString( payment ) ) ).andExpect( status().isNotFound() );
+
         // get payments
         paymentsContent = mvc.perform( get( "/api/v1/bills/" + bill.getId() + "/payments" ) )
                 .andExpect( status().isOk() ).andReturn().getResponse().getContentAsString();
@@ -229,6 +236,14 @@ public class APIBillTest {
         }.getType() );
 
         assertEquals( payments.size(), 1 );
+
+        // get bills for one patient
+        final String patient2BillsContent = mvc
+                .perform( get( "/api/v1/patients/patient2/bills/" ).contentType( MediaType.APPLICATION_JSON_VALUE ) )
+                .andExpect( status().isOk() ).andReturn().getResponse().getContentAsString();
+        final List<Bill> patient2Bills = TestUtils.gson().fromJson( patient2BillsContent, new TypeToken<List<Bill>>() {
+        }.getType() );
+        assertEquals( 1, patient2Bills.size() );
 
     }
 
