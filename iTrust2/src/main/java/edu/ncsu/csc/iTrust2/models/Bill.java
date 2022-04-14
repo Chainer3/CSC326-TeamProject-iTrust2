@@ -1,5 +1,7 @@
 package edu.ncsu.csc.iTrust2.models;
 
+import java.time.Duration;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,28 +22,32 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
  * payments.
  *
  * @author Leah Whaley
+ * @author Zach Harris
  *
  */
 @Entity
 @Table ( name = "Bill" )
 public class Bill extends DomainObject {
 
+    /** The number of days that must pass before a bill becomes delinquent. */
+    private static final Long DAYS_UNTIL_DELINQUENCY = 60L;
+
     /**
      * The id for this bill.
      */
     @Id
     @GeneratedValue
-    private Long          id;
+    private Long              id;
 
     /**
      * The total amount due for this bill.
      */
-    private Long          totalDue;
+    private Long              totalDue;
 
     /**
      * A flag that says if the bill has been paid or not.
      */
-    private boolean       isPaid;
+    private boolean           isPaid;
 
     /**
      * The OfficeVisit that this bill is paying for.
@@ -49,13 +55,13 @@ public class Bill extends DomainObject {
     @OneToOne
     @JoinColumn ( name = "visit_id" )
     @JsonBackReference
-    private OfficeVisit   visit;
+    private OfficeVisit       visit;
 
     /**
      * The list of payment that have been made on this bill.
      */
     @OneToMany ( cascade = CascadeType.ALL )
-    private List<Payment> payments;
+    private List<Payment>     payments;
 
     /**
      * Empty constructor for Hibernate.
@@ -75,11 +81,13 @@ public class Bill extends DomainObject {
         setVisit( visit );
         setPayments( new ArrayList<Payment>() );
         Long due = (long) 0;
-        for ( int i = 0; i < visit.getCptCodes().size(); i++ ) {
-            due += visit.getCptCodes().get( i ).getCost();
+        if ( visit.getCptCodes() != null ) {
+            for ( int i = 0; i < visit.getCptCodes().size(); i++ ) {
+                due += visit.getCptCodes().get( i ).getCost();
+            }
         }
         setTotalDue( due );
-        visit.setBill( this );
+
     }
 
     /**
@@ -211,5 +219,39 @@ public class Bill extends DomainObject {
             throw new IllegalArgumentException( "Invalid payment." );
         }
 
+    }
+
+    /**
+     * Gets the status of this bill.
+     *
+     * @return The status of this bill
+     */
+    public String getStatus () {
+        if ( this.isPaid ) {
+            return "Paid";
+        }
+        else if ( Duration.between( getVisit().getDate(), ZonedDateTime.now() ).toDays() > DAYS_UNTIL_DELINQUENCY ) {
+            return "Delinquent";
+        }
+        else {
+            return "Unpaid";
+        }
+    }
+
+    /**
+     * Gets the remaining balance of this bill.
+     *
+     * @return The remaining amount due on this bill.
+     */
+    public Long getBalance () {
+        Long paid = 0L;
+        for ( final Payment p : payments ) {
+            paid += p.getAmount();
+        }
+        Long due = totalDue - paid;
+        if ( due < 0L ) {
+            due = 0L;
+        }
+        return due;
     }
 }

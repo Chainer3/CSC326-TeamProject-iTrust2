@@ -1,5 +1,7 @@
 package edu.ncsu.csc.iTrust2.services;
 
+import java.time.ZonedDateTime;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Component;
@@ -33,7 +35,7 @@ public class PaymentService extends Service<Payment, Long> {
     public Payment build ( final PaymentForm form ) {
         final Payment payment = new Payment();
         payment.setAmount( form.getAmount() );
-        payment.setDate( form.getDate() );
+        payment.setDate( ZonedDateTime.parse( form.getDate() ) );
         payment.setPaymentMethod( form.getPaymentMethod() );
         return payment;
     }
