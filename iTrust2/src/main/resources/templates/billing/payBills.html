@@ -20,12 +20,6 @@
             	// The bill selected by the billing staff member to add a payment
             	$scope.bill = 0;
             	
-            	// A list of patients to be selected by the user for a specific bill
-            	//$scope.selectPatient = [];
-            	
-            	// The current 
-            	//$scope.patient = {};
-            	
             	// String showing what payment method is being used
             	$scope.paymentMethod = "";
             	
@@ -44,17 +38,12 @@
            
                 //Updates the table with the most current data
             	$scope.updateTable = function() {
-                    /**$http.get("/iTrust2/api/v1/bills").then(
+                    $http.get("/iTrust2/api/v1/bills").then(
                     		$scope.newPayment.amount = 0,
                     		function(response) {
                                 $scope.allBills = response.data;
                     		}, function(rejection) {
-                    });*/
-                    $scope.allBills = [
-                    	{"name":"eh", "totalDue":10},
-                    	{"name":"eh2", "totalDue":20}
-                    ];s
-                    console.log($scope.allBills);
+                    });
                     $scope.bill = "";
                     $scope.updatePaymentAmount();
                 }
@@ -88,11 +77,13 @@
                     } else if (!newPayment.date == "") {
                     	$scope.errorAdding = "Please enter a date";
                     } else {
-                        console.log("Correct payment");
+                        //console.log("Correct payment");
                         $scope.errorAdding = "";
+                        $scope.successAdding = "";
                         $http.post("/iTrust2/api/v1/" + $scope.bill.id + "/payments/", $scope.newPayment).then(
                             function (response) {
                                 $scope.updateTable();
+                                $scope.successAdding = "Payment added to bill";
                             }, function (rejection) {
                                 $scope.errorAdding = "Could not add Payment";
                             });
@@ -115,8 +106,8 @@
             			$scope.
             	*/
             	$scope.updatePaymentAmount = function() {
-            			console.log( "Bill: " + $scope.bill );
-            			console.log( "Payment: " + $scope.newPayment );
+            			//console.log( "Bill: " + $scope.bill );
+            			//console.log( "Payment: " + $scope.newPayment );
             			if ( $scope.bill != 0 ) {
             				if ( $scope.paymentMethod == 1 ) {
             					$scope.newPayment.amount = $scope.bill.totalDue;
@@ -254,6 +245,7 @@
 													</div>
 												</form>
 												<div>
+							                        <p style="color: green" ng-model="successAdding" id="successP">{{successAdding}}</p>
 							                        <!-- <h4 style="color: red" ng-show="addCodeForm.$valid">Code doesn't meet specifications</h4>  -->
 							                        <p style="color: red" ng-model="errorAdding" id="errP">{{errorAdding}}</p>
 						                        </div>
