@@ -55,7 +55,7 @@ public class Payment extends DomainObject {
      *            the form with the values of the payment
      */
     public Payment ( final PaymentForm form ) {
-        setDate( form.getDate() );
+        setDate( ZonedDateTime.parse( form.getDate() ) );
         setAmount( form.getAmount() );
         setPaymentMethod( form.getPaymentMethod() );
     }

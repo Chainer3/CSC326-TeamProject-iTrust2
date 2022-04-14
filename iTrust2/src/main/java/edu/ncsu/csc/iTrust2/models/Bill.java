@@ -81,8 +81,10 @@ public class Bill extends DomainObject {
         setVisit( visit );
         setPayments( new ArrayList<Payment>() );
         Long due = (long) 0;
-        for ( int i = 0; i < visit.getCptCodes().size(); i++ ) {
-            due += visit.getCptCodes().get( i ).getCost();
+        if ( visit.getCptCodes() != null ) {
+            for ( int i = 0; i < visit.getCptCodes().size(); i++ ) {
+                due += visit.getCptCodes().get( i ).getCost();
+            }
         }
         setTotalDue( due );
 

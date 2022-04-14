@@ -44,7 +44,7 @@ public class BillTest {
         code1.setCode( 99202 );
         code1.setDescription( "for office visits of 15-29 minutes" );
         code1.setCost( 7500 );
-        code1.setVersion( (long) 1 );
+        code1.setVersion( 1 );
         code1.setIsArchived( false );
         code1.setTimeRangeMin( 15 );
         code1.setTimeRangeMax( 29 );
@@ -53,7 +53,7 @@ public class BillTest {
         code2.setCode( 99205 );
         code2.setDescription( "for office visits of 60-74 minutes" );
         code2.setCost( 25000 );
-        code2.setVersion( (long) 1 );
+        code2.setVersion( 1 );
         code2.setIsArchived( false );
         code2.setTimeRangeMin( 60 );
         code2.setTimeRangeMax( 74 );
@@ -63,6 +63,7 @@ public class BillTest {
         visit2.setCptCodes( codes );
 
         final Bill bill2 = new Bill( visit2 );
+        visit2.setBill( bill2 );
         assertFalse( bill2.getIsPaid() );
         assertEquals( 0, bill2.getPayments().size() );
         assertEquals( 32500, (long) bill2.getTotalDue() );
@@ -92,16 +93,16 @@ public class BillTest {
 
         final PaymentForm form1 = new PaymentForm( payment1 );
         assertEquals( 10000, (long) form1.getAmount() );
-        assertEquals( date, form1.getDate() );
+        assertEquals( date.toString(), form1.getDate() );
         assertEquals( "Cash", form1.getPaymentMethod() );
 
         final PaymentForm form2 = new PaymentForm();
         form2.setAmount( (long) 5000 );
-        form2.setDate( date );
+        form2.setDate( date.toString() );
         form2.setPaymentMethod( "Check" );
 
         assertEquals( 5000, (long) form2.getAmount() );
-        assertEquals( date, form2.getDate() );
+        assertEquals( date.toString(), form2.getDate() );
         assertEquals( "Check", form2.getPaymentMethod() );
 
         final Payment payment2 = new Payment( form2 );
@@ -146,7 +147,7 @@ public class BillTest {
         code1.setCode( 99202 );
         code1.setDescription( "for office visits of 15-29 minutes" );
         code1.setCost( 7500 );
-        code1.setVersion( (long) 1 );
+        code1.setVersion( 1 );
         code1.setIsArchived( false );
         code1.setTimeRangeMin( 15 );
         code1.setTimeRangeMax( 29 );
@@ -155,7 +156,7 @@ public class BillTest {
         code2.setCode( 99205 );
         code2.setDescription( "for office visits of 60-74 minutes" );
         code2.setCost( 25000 );
-        code2.setVersion( (long) 1 );
+        code2.setVersion( 1 );
         code2.setIsArchived( false );
         code2.setTimeRangeMin( 60 );
         code2.setTimeRangeMax( 74 );
@@ -221,7 +222,7 @@ public class BillTest {
         code1.setCode( 99202 );
         code1.setDescription( "for office visits of 15-29 minutes" );
         code1.setCost( 7500 );
-        code1.setVersion( (long) 1 );
+        code1.setVersion( 1 );
         code1.setIsArchived( false );
         code1.setTimeRangeMin( 15 );
         code1.setTimeRangeMax( 29 );
@@ -230,7 +231,7 @@ public class BillTest {
         code2.setCode( 99205 );
         code2.setDescription( "for office visits of 60-74 minutes" );
         code2.setCost( 25000 );
-        code2.setVersion( (long) 1 );
+        code2.setVersion( 1 );
         code2.setIsArchived( false );
         code2.setTimeRangeMin( 60 );
         code2.setTimeRangeMax( 74 );

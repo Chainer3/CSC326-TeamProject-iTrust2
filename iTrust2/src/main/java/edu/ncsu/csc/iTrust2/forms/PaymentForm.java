@@ -1,7 +1,5 @@
 package edu.ncsu.csc.iTrust2.forms;
 
-import java.time.ZonedDateTime;
-
 import edu.ncsu.csc.iTrust2.models.Payment;
 
 /**
@@ -15,17 +13,17 @@ public class PaymentForm {
     /**
      * The date this payment was made.
      */
-    private ZonedDateTime date;
+    private String date;
 
     /**
      * The amount of this payment
      */
-    private Long          amount;
+    private Long   amount;
 
     /**
      * How this payment was made.
      */
-    private String        paymentMethod;
+    private String paymentMethod;
 
     /**
      * Empty constructor for Hibernate
@@ -41,7 +39,7 @@ public class PaymentForm {
      *            the payment to get the values for the form from
      */
     public PaymentForm ( final Payment payment ) {
-        setDate( payment.getDate() );
+        setDate( payment.getDate().toString() );
         setAmount( payment.getAmount() );
         setPaymentMethod( payment.getPaymentMethod() );
     }
@@ -51,7 +49,7 @@ public class PaymentForm {
      *
      * @return the date of this payment
      */
-    public ZonedDateTime getDate () {
+    public String getDate () {
         return date;
     }
 
@@ -61,7 +59,7 @@ public class PaymentForm {
      * @param date
      *            the value to set the date to
      */
-    public void setDate ( final ZonedDateTime date ) {
+    public void setDate ( final String date ) {
         this.date = date;
     }
 

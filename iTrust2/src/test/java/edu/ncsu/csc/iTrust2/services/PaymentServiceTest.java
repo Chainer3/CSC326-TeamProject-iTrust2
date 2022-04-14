@@ -198,11 +198,11 @@ public class PaymentServiceTest {
         // Sets up the first payment for testing
         final PaymentForm form = new PaymentForm();
         form.setAmount( (long) 500 );
-        form.setDate( ZonedDateTime.now() );
+        form.setDate( ZonedDateTime.now().toString() );
         form.setPaymentMethod( "Credit" );
         final Payment payment = service.build( form );
         Assert.assertEquals( payment.getAmount(), form.getAmount() );
-        Assert.assertEquals( payment.getDate(), form.getDate() );
+        Assert.assertEquals( payment.getDate().toString(), form.getDate() );
         Assert.assertEquals( payment.getPaymentMethod(), form.getPaymentMethod() );
     }
 }

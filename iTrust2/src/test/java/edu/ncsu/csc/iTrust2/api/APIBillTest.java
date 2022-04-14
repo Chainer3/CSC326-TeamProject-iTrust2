@@ -5,7 +5,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.time.ZonedDateTime;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -36,7 +35,6 @@ import edu.ncsu.csc.iTrust2.models.CPTCode;
 import edu.ncsu.csc.iTrust2.models.Hospital;
 import edu.ncsu.csc.iTrust2.models.OfficeVisit;
 import edu.ncsu.csc.iTrust2.models.Patient;
-import edu.ncsu.csc.iTrust2.models.Payment;
 import edu.ncsu.csc.iTrust2.models.Personnel;
 import edu.ncsu.csc.iTrust2.models.User;
 import edu.ncsu.csc.iTrust2.models.enums.AppointmentType;
@@ -209,7 +207,7 @@ public class APIBillTest {
         // get payments
         String paymentsContent = mvc.perform( get( "/api/v1/bills/" + bill.getId() + "/payments" ) )
                 .andExpect( status().isOk() ).andReturn().getResponse().getContentAsString();
-        List<Payment> payments = TestUtils.gson().fromJson( paymentsContent, new TypeToken<List<Payment>>() {
+        List<PaymentForm> payments = TestUtils.gson().fromJson( paymentsContent, new TypeToken<List<PaymentForm>>() {
         }.getType() );
 
         assertEquals( payments.size(), 0 );
@@ -218,17 +216,16 @@ public class APIBillTest {
 
         final PaymentForm payment = new PaymentForm();
         payment.setAmount( 5000L );
-        payment.setDate( ZonedDateTime.parse( "2030-11-20T04:50:00.000-05:00" ) );
+        payment.setDate( "2030-11-20T04:50:00.000-05:00" );
         payment.setPaymentMethod( "cash" );
 
         mvc.perform( post( "/api/v1/bills/" + bill.getId() + "/payments" ).contentType( MediaType.APPLICATION_JSON )
-                .content( TestUtils.asJsonString( payment ) ) ).andExpect( status().isOk() ).andReturn().getResponse()
-                .getContentAsString();
+                .content( TestUtils.asJsonString( payment ) ) ).andExpect( status().isOk() );
 
         // get payments
         paymentsContent = mvc.perform( get( "/api/v1/bills/" + bill.getId() + "/payments" ) )
                 .andExpect( status().isOk() ).andReturn().getResponse().getContentAsString();
-        payments = TestUtils.gson().fromJson( paymentsContent, new TypeToken<List<Payment>>() {
+        payments = TestUtils.gson().fromJson( paymentsContent, new TypeToken<List<PaymentForm>>() {
         }.getType() );
 
         assertEquals( payments.size(), 1 );
@@ -282,8 +279,9 @@ public class APIBillTest {
         // get payments
         final String paymentsContent = mvc.perform( get( "/api/v1/patient/bills/" + bill.getId() + "/payments" ) )
                 .andExpect( status().isOk() ).andReturn().getResponse().getContentAsString();
-        final List<Payment> payments = TestUtils.gson().fromJson( paymentsContent, new TypeToken<List<Payment>>() {
-        }.getType() );
+        final List<PaymentForm> payments = TestUtils.gson().fromJson( paymentsContent,
+                new TypeToken<List<PaymentForm>>() {
+                }.getType() );
 
         assertEquals( payments.size(), 0 );
 
