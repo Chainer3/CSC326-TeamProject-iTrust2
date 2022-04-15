@@ -15,6 +15,7 @@ import edu.ncsu.csc.iTrust2.forms.CPTCodeForm;
 import edu.ncsu.csc.iTrust2.forms.OfficeVisitForm;
 import edu.ncsu.csc.iTrust2.forms.PrescriptionForm;
 import edu.ncsu.csc.iTrust2.models.AppointmentRequest;
+import edu.ncsu.csc.iTrust2.models.Bill;
 import edu.ncsu.csc.iTrust2.models.Diagnosis;
 import edu.ncsu.csc.iTrust2.models.OfficeVisit;
 import edu.ncsu.csc.iTrust2.models.Patient;
@@ -204,6 +205,8 @@ public class OfficeVisitService extends Service<OfficeVisit, Long> {
         if ( cpt != null ) {
             ov.setCptCodes( cpt.stream().map( cptCodeService::build ).collect( Collectors.toList() ) );
         }
+
+        ov.setBill( new Bill( ov ) );
 
         final Patient p = (Patient) ov.getPatient();
         if ( p == null || p.getDateOfBirth() == null ) {

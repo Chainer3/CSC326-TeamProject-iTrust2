@@ -20,7 +20,7 @@ public interface CPTCodeRepository extends JpaRepository<CPTCode, Long> {
      *            Code to look for
      * @return the CPT code with that number
      */
-    public CPTCode findByCode ( long code );
+    public List<CPTCode> findByCode ( long code );
 
     /**
      * This method returns a list of CPT codes based on the archive status of a
