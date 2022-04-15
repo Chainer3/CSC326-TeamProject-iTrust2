@@ -122,7 +122,7 @@ public class APIBillController extends APIController {
      *            The Bill to get.
      * @return The balance of the bill.
      */
-    @PreAuthorize ( "hasAnyRole('ROLE_BILLING')" )
+    @PreAuthorize ( "hasAnyRole('ROLE_BILLING', 'ROLE_PATIENT')" )
     @GetMapping ( BASE_PATH + "/bills/{id}/balance" )
     public ResponseEntity getBillBalance ( @PathVariable final Long id ) {
         final Bill b = billService.findById( id );

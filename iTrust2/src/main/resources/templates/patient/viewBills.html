@@ -43,11 +43,16 @@
 									$http.get("/iTrust2/api/v1/officevisits/myofficevisits").then(
 								            function (response) {
 								              $scope.visits = response.data;
+								              console.log("1. " + $scope.visits.length);
 								              $scope.errorMsg = "";
+								              $scope.total = 0;
+											  for(var i = 0, len = $scope.visits.length; i < len; i++) {
+											  		$scope.total += $scope.visits[i].bill.totalDue;
+											  }
 								            }, function (rejection) {
 								              $scope.visits = [];
 								              $scope.errorMsg = "Could not display office visits.";
-								            });
+								     });
 									/**
 									$scope.bills = [
 										{id: '123456', date: '04/13/2022', status: 'Paid', cost: 75, hcp: 'Dr. Chez'},
@@ -58,10 +63,6 @@
 									$scope.currentBill = $scope.bills[0];
 									$scope.total = 0;
 									*/
-									$scope.total = 0;
-									for(var i = 0, len = $scope.visits.length; i < len; i++) {
-										$scope.total += $scope.visits[i].bill.totalDue;
-									}
 									
 								}
 								$scope.billDetails = function (visit) {
@@ -94,6 +95,12 @@
 										}
 									}
 									*/
+									$http.get("/iTrust2/api/v1/bills/"+ visit.bill.id +"/balance").then(
+											function (response) {
+												$scope.balance = response.data;
+											}, function(rejection) {
+												$scope.errorMessage = ("Could not find bills.");
+										});
 									console.log($scope.visits.length);
 								}
 								$scope.updateBills();
@@ -161,6 +168,9 @@
 						<div style="text-align: left; padding: 5px; font-size: 20px">
 							<b>Status:</b> {{currentVisit.bill.status}}
 						</div>
+						<div style="text-align: left; padding: 5px; font-size: 20px">
+							<b>Balance Due: </b>${{balance}}
+						</div>
 
 					<br />
 
@@ -182,15 +192,6 @@
 								<td name="codeCell">{{l.code}}</td>
 								<td name="descriptionCell">{{l.description}}</td>
 								<td name="costCell">${{l.cost}}</td>
-							</tr>
-							<tr>
-							<td>
-							</td>
-							<td>
-							</td>
-							<td>
-							Total: ${{total}}
-							</td>
 							</tr>
 						</tbody>
 					</table>
