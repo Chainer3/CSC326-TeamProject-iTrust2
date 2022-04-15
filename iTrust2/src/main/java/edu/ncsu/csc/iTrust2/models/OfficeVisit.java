@@ -13,6 +13,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -128,8 +130,9 @@ public class OfficeVisit extends DomainObject {
     /**
      * CPTCodes associated with this OfficeVisit
      */
-    @OneToMany ( cascade = CascadeType.ALL )
-    @JsonManagedReference
+    @ManyToMany
+    @JoinTable ( name = "office_visit_cpt_codes", joinColumns = { @JoinColumn ( name = "office_visit_id" ) },
+            inverseJoinColumns = { @JoinColumn ( name = "cptCode_id" ) } )
     private List<CPTCode>        cptCodes;
 
     /**

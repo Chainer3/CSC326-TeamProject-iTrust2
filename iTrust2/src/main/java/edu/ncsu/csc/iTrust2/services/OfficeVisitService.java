@@ -204,6 +204,11 @@ public class OfficeVisitService extends Service<OfficeVisit, Long> {
 
         if ( cpt != null ) {
             ov.setCptCodes( cpt.stream().map( cptCodeService::build ).collect( Collectors.toList() ) );
+            for ( int i = 0; i < ov.getCptCodes().size(); i++ ) {
+                ov.getCptCodes().get( i )
+                        .setId( cptCodeService.findByCode( ov.getCptCodes().get( i ).getCode() ).getId() );
+            }
+
         }
 
         ov.setBill( new Bill( ov ) );
