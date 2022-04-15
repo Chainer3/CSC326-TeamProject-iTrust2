@@ -92,7 +92,7 @@ public class APIOfficeVisitController extends APIController {
      * @return list of office visits
      */
     @GetMapping ( BASE_PATH + "/officevisits/{id}" )
-    @PreAuthorize ( "hasAnyRole('ROLE_HCP')" )
+    @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_PATIENT')" )
     public ResponseEntity getOfficeVisit ( @PathVariable final Long id ) {
         final User self = userService.findByName( LoggerUtil.currentUser() );
         loggerUtil.log( TransactionType.GENERAL_CHECKUP_HCP_VIEW, self );
