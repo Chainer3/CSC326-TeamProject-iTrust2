@@ -117,7 +117,7 @@ public class APICPTCodeController extends APIController {
     @GetMapping ( BASE_PATH + "/cptarchive/" )
     public List<CPTCode> getArchivedCodes () {
         // Return all archived CPT codes in system
-        loggerUtil.log( TransactionType.CPT_VIEW, LoggerUtil.currentUser(),
+        loggerUtil.log( TransactionType.CPT_VIEW_ARCHIVED, LoggerUtil.currentUser(),
                 "User viewed a list of all archived CPT codes" );
         return cptService.findByIsArchived( true );
     }

@@ -90,7 +90,7 @@ public class APICPTCodeTest {
         cptForm1.setCost( 5 );
         cptForm1.setTimeRangeMin( 5 );
         cptForm1.setTimeRangeMax( 15 );
-        cptForm1.setVersion( (long) 1 );
+        cptForm1.setVersion( 1 );
 
         final CPTCodeForm cptForm2 = new CPTCodeForm();
         cptForm2.setCode( 90001 );
@@ -99,7 +99,7 @@ public class APICPTCodeTest {
         cptForm2.setCost( 10 );
         cptForm2.setTimeRangeMin( 0 );
         cptForm2.setTimeRangeMax( 0 );
-        cptForm2.setVersion( (long) 1 );
+        cptForm2.setVersion( 1 );
 
         final CPTCodeForm cptForm3 = new CPTCodeForm();
         cptForm3.setCode( 90000 );
@@ -108,7 +108,7 @@ public class APICPTCodeTest {
         cptForm3.setCost( 15 );
         cptForm3.setTimeRangeMin( 0 );
         cptForm3.setTimeRangeMax( 0 );
-        cptForm3.setVersion( (long) 1 );
+        cptForm3.setVersion( 1 );
 
         final String content1 = mvc
                 .perform( post( "/api/v1/cptcodes" ).contentType( MediaType.APPLICATION_JSON )
@@ -125,7 +125,7 @@ public class APICPTCodeTest {
         assertEquals( cf1.getTimeRangeMin(), cptForm1.getTimeRangeMin() );
         assertEquals( cf1.getTimeRangeMax(), cptForm1.getTimeRangeMax() );
         assertEquals( cf1.getVersion(), cptForm1.getVersion() );
-        assertEquals( 1, (long) cf1.getVersion() );
+        assertEquals( 1, cf1.getVersion() );
 
         // Try adding a new code with the same code number as an active code
         mvc.perform( post( "/api/v1/cptcodes" ).contentType( MediaType.APPLICATION_JSON )
@@ -163,7 +163,7 @@ public class APICPTCodeTest {
         final CPTCode edited1 = TestUtils.gson().fromJson( editContent1, CPTCode.class );
         assertEquals( c1.getCode(), edited1.getCode() );
         assertEquals( c1.getCost(), edited1.getCost() );
-        assertEquals( 2, (long) edited1.getVersion() );
+        assertEquals( 2, edited1.getVersion() );
 
         // Get a CPTCode by code value
         final String getContent1 = mvc.perform( get( "/api/v1/cptcodes/" + c1.getCode() ) ).andExpect( status().isOk() )
@@ -186,7 +186,7 @@ public class APICPTCodeTest {
         final List<CPTCode> allArchivedCodes = TestUtils.gson().fromJson( allArchivedCodesContent,
                 new TypeToken<List<CPTCode>>() {
                 }.getType() );
-        assertTrue( allArchivedCodes.size() == 2 );
+        assertEquals( 2, allArchivedCodes.size() );
 
         // Archive an invalid code
         mvc.perform( delete( "/api/v1/cptcodes/" + 0 ) ).andExpect( status().isNotFound() );

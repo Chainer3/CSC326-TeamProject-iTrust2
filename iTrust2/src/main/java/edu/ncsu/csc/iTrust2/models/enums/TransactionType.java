@@ -275,19 +275,23 @@ public enum TransactionType {
     /**
      * Admin created a new CPT code
      */
-    CPT_CREATE ( 920, "Admin created a new CPT code", true ),
+    CPT_CREATE ( 920, "User created a new CPT code", true ),
     /**
      * Admin edited an existing CPT code
      */
-    CPT_EDIT ( 921, "Admin edited an existing CPT code", true ),
+    CPT_EDIT ( 921, "User edited an existing CPT code", true ),
     /**
      * Admin deleted an existing CPT code
      */
-    CPT_ARCHIVE ( 922, "Admin archived an existing CPT code", true ),
+    CPT_ARCHIVE ( 922, "User archived an existing CPT code", true ),
     /**
      * Admin views all CPT codes in the system
      */
-    CPT_VIEW ( 923, "Admin views all CPT codes in the system", true ),
+    CPT_VIEW ( 923, "User views all CPT codes in the system", true ),
+    /**
+     * Admin views all archived CPT codes in the system
+     */
+    CPT_VIEW_ARCHIVED ( 924, "User views all archived CPT codes in the system", true ),
 
     /**
      * Admin added a payment to an existing bill

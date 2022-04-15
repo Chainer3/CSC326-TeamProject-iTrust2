@@ -69,4 +69,15 @@ public class BillingController {
         return "/billing/viewBills";
     }
 
+    /*
+     * Returns the page for the Pay Bills page
+     * @param model The data for the front end
+     * @return The page to display to the user
+     */
+    @GetMapping ( "/billing/payBills" )
+    @PreAuthorize ( "hasAnyRole('ROLE_BILLING')" )
+    public String payBills ( final Model model ) {
+        return "billing/payBills";
+    }
+
 }
