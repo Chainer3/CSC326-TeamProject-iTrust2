@@ -18,7 +18,10 @@
             	$scope.allBills = [];
             	
             	// The bill selected by the billing staff member to add a payment
-            	$scope.bill = 0;
+            	$scope.selectedBill = 0;
+            	
+            	// Models the selected method
+            	$scope.method = "";
             	
             	// String showing what payment method is being used
             	$scope.paymentMethod = "";
@@ -29,8 +32,10 @@
             	$scope.newPayment = {
             			"amount":0,
             			"paymentMethod":"",
-            			"date":""
+            			"date":"",
             	};
+            	
+            	$scope.pastPayments = [];
             	
             	$scope.totalBill = 0;
             	
@@ -38,19 +43,25 @@
            
                 //Updates the table with the most current data
             	$scope.updateTable = function() {
-                    $http.get("/iTrust2/api/v1/bills").then(
-                    		$scope.newPayment.amount = 0,
+            		$scope.newPayment.amount = 0;
+                	$http.get("/iTrust2/api/v1/bills/").then(
                     		function(response) {
                                 $scope.allBills = response.data;
+                                console.log( "Response: " + response.data);
                     		}, function(rejection) {
                     });
-                    $scope.bill = "";
-                    $scope.updatePaymentAmount();
+                    $scope.selectedBill = 0;
+                    $scope.showBill();
                 }
                 
                 $scope.updateBills = function() {
-                	$http.get("/itrust2/api/v1/bills").then();
+                	$http.get("/iTrust2/api/v1/bills/").then();
                 	$scope.updatePaymentAmount();
+                }
+                
+                $scope.updateMethod = function() {
+                	$scope.newPayment.paymentMethod = $scope.method;
+                	//console.log($scope.method);
                 }
             	
             	//Checks for duplicate active CPT Codes
@@ -68,24 +79,24 @@
 
             	//Add CPT Code to active codes
                 $scope.addPayment = function() {
-            		if ( !$scope.bill ) {
+            		if ( !$scope.selectedBill ) {
             			$scope.errorAdding = "Please select a bill";
             		} else if ($scope.newPayment.amount <= 0) {
                 		$scope.errorAdding = "Could not add Payment: Payment amount must be greater than 0";
-                    } else if ( $scope.newPayment.amount > $scope.bill.totalDue) {
+                    } else if ( $scope.newPayment.amount > $scope.selectedBill.balance) {
                         $scope.errorAdding = "Could not add Payment: Amount must be less than the total bill";
-                    } else if (!newPayment.date == "") {
+                    } else if ($scope.newPayment.date == "") {
                     	$scope.errorAdding = "Please enter a date";
                     } else {
-                        //console.log("Correct payment");
+                        console.log($scope.newPayment);
                         $scope.errorAdding = "";
                         $scope.successAdding = "";
-                        $http.post("/iTrust2/api/v1/" + $scope.bill.id + "/payments/", $scope.newPayment).then(
+                        $http.post("/iTrust2/api/v1/bills/" + $scope.selectedBill.id + "/payments", $scope.newPayment).then(
                             function (response) {
                                 $scope.updateTable();
                                 $scope.successAdding = "Payment added to bill";
                             }, function (rejection) {
-                                $scope.errorAdding = "Could not add Payment";
+                                $scope.errorAdding = "Could not add Payment:" + rejection.message;
                             });
                         //scope.updateTable();
                     }
@@ -94,9 +105,14 @@
             	/**
             	*/
             	$scope.showBill = function() {
-            		console.log($scope.bill);
-            		$scope.totalBill = $scope.bill.totalDue;
-            		$scope.updatePaymentAmount();
+            		console.log($scope.selectedBill);
+            		if (!$scope.selectedBill) {
+            			$scope.totalBill = 0;
+            			$scope.updatePaymentAmount();
+            		} else {
+                		$scope.totalBill = $scope.selectedBill.balance;
+                		$scope.updatePaymentAmount();
+            		}
             	}
             	
             	/**
@@ -108,9 +124,10 @@
             	$scope.updatePaymentAmount = function() {
             			//console.log( "Bill: " + $scope.bill );
             			//console.log( "Payment: " + $scope.newPayment );
-            			if ( $scope.bill != 0 ) {
+            			$scope.totalDue = $scope.selectedBill.balance;
+            			if ( $scope.selectedBill != 0 ) {
             				if ( $scope.paymentMethod == 1 ) {
-            					$scope.newPayment.amount = $scope.bill.totalDue;
+            					$scope.newPayment.amount = $scope.selectedBill.balance;
             				}
             				$scope.isFull = $scope.paymentMethod
             			} else {
@@ -185,7 +202,8 @@
 															<div class="row">
 																<div class="col-md-7">
 																	<select class="form-control" name="bills" ng-change="showBill()"
-																		ng-model="bill" value={{b}} required="required" ng-options="b for bill in allBills"><!-- ng-options="b as bill.name for bill in allBills" -->
+																		ng-model="selectedBill" value={{bill}} required="required" ng-options="bill.id for bill in allBills"><!-- ng-options="b as bill.name for bill in allBills"--> 
+																		<option value="">Select a Bill</option>
 																	</select>
 																</div>
 															</div>
@@ -210,16 +228,16 @@
 															<input type="text" id="billheader" ng-model="totalBill" disabled></input><br>
 															<div class="col-md-5">
 																<label>Payment Method</label><br>
-																<input type="radio" id="cash" name="payment_method" value="Cash" ng-model="newPayment.method" required="true">
+																<input type="radio" id="cash" name="payment_method" value="Cash" ng-model="method" required="true" ng-click="updateMethod()">
 																<label for="cash">Cash</label>
 																<br>
-																<input type="radio" id="creditcard" name="payment_method" value="Credit Card" ng-model="newPayment.method">
+																<input type="radio" id="creditcard" name="payment_method" value="Credit" ng-model="method" ng-click="updateMethod()">
 																<label for="creditcard">Credit Card</label>
 																<br>
-																<input type="radio" id="check" name="payment_method" value="Check" ng-model="newPayment.method">
+																<input type="radio" id="check" name="payment_method" value="Check" ng-model="method" ng-click="updateMethod()">
 																<label for="check">Check</label>
 																<br>
-																<input type="radio" id="insurance" name="payment_method" value="Insurance" ng-model="newPayment.method">
+																<input type="radio" id="insurance" name="payment_method" value="Insurance" ng-model="method" ng-click="updateMethod()">
 																<label for="insurance">Insurance</label>
 																<br>
 															</div>
@@ -253,7 +271,6 @@
 										</div>
 									</div>
 									<br /> 
-									<a style="padding-left: 30px" href="archivedCPTCodes">Archived CPT Codes</a>
 								</div>
 							</div>
 						</div>
