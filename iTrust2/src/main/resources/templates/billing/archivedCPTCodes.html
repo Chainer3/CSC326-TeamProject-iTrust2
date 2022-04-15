@@ -8,19 +8,21 @@
 		<script th:inline="javascript">
 			var app = angular.module('archiveCPT', []);
 
-			angular.module("archiveCPT").controller(
-					'archiveCPTsCtrl',
-					function($scope, $http) {
-						var self = this;
-						self.archivedCPTs = [];
+			angular.module("archiveCPT").controller('archiveCPTsCtrl', function($scope, $http) {
+				//var self = this;
+				//self.archivedCPTs = [];
+				
+				$scope.archivedcpts = [];
 
-						self.updateTable = function() {
-							$http.get("/iTrust2/api/v1/cptarchive/").then(
-									function(response) {
-										self.archivedCPTs = response.data;
-									});
-						}
+				$scope.updateTable = function() {
+					$http.get("/iTrust2/api/v1/cptarchive/").then(
+						function(response) {
+							//self.archivedCPTs = response.data;
+							$scope.archivedcpts = response.data;
 					});
+				}
+				$scope.updateTable();
+			});
 		</script>
 
 		<div ng-app="archiveCPT" ng-controller="archiveCPTsCtrl as ctrl">
@@ -48,7 +50,7 @@
 
 									<!-- CPT code for every row, ordered by code ascending, then version -->
 									<tbody>
-										<tr name="cptTableRow" ng-repeat="l in ctrl.cpts">
+										<tr name="cptTableRow" ng-repeat="l in archivedcpts">
 											<td name="codeCell">{{l.code}}</td>
 											<td name="descriptionCell">{{l.description}}</td>
 											<td name="costCell">{{l.cost}}</td>
