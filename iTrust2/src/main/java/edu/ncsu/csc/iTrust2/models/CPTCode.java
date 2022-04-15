@@ -45,7 +45,7 @@ public class CPTCode extends DomainObject {
     /**
      * The version number of this CPTCode
      */
-    private String  version;
+    private long    version;
 
     /**
      * If the code is archived or active
@@ -104,14 +104,17 @@ public class CPTCode extends DomainObject {
         }
 
         // Validates the version field
-        if ( form.getVersion() != null ) {
-            final String s = form.getVersion();
-            for ( int i = 0; i < s.length(); i++ ) {
-                if ( !Character.isDigit( s.charAt( i ) ) && s.charAt( i ) != '.' ) {
-                    throw new IllegalArgumentException( "Versions can only have digits or decimal points: " + s );
-                }
-            }
-            setVersion( s );
+        if ( form.getVersion() > 0 ) {
+
+            setVersion( form.getVersion() );
+        }
+        // else if ( form.getVersion() == 0 ) {
+        // setVersion( 1 );
+        // }
+        else {
+            // throw new IllegalArgumentException( "Version number must be
+            // positive: " + form.getVersion() );
+            setVersion( 1 );
         }
 
         // Validates the minimum time range field
@@ -218,7 +221,7 @@ public class CPTCode extends DomainObject {
      * @param version
      *            the value to set the version to
      */
-    public void setVersion ( final String version ) {
+    public void setVersion ( final long version ) {
         this.version = version;
     }
 
@@ -227,7 +230,7 @@ public class CPTCode extends DomainObject {
      *
      * @return the version of the CPT code
      */
-    public String getVersion () {
+    public long getVersion () {
         return version;
     }
 

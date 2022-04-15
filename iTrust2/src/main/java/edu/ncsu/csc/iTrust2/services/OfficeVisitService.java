@@ -15,6 +15,7 @@ import edu.ncsu.csc.iTrust2.forms.CPTCodeForm;
 import edu.ncsu.csc.iTrust2.forms.OfficeVisitForm;
 import edu.ncsu.csc.iTrust2.forms.PrescriptionForm;
 import edu.ncsu.csc.iTrust2.models.AppointmentRequest;
+import edu.ncsu.csc.iTrust2.models.Bill;
 import edu.ncsu.csc.iTrust2.models.Diagnosis;
 import edu.ncsu.csc.iTrust2.models.OfficeVisit;
 import edu.ncsu.csc.iTrust2.models.Patient;
@@ -199,11 +200,18 @@ public class OfficeVisitService extends Service<OfficeVisit, Long> {
             ov.setPrescriptions( ps.stream().map( prescriptionService::build ).collect( Collectors.toList() ) );
         }
 
-        final List<CPTCodeForm> cpt = ovf.getCPTCodes();
+        final List<CPTCodeForm> cpt = ovf.getCptCodes();
 
         if ( cpt != null ) {
-            ov.setCPTCodes( cpt.stream().map( cptCodeService::build ).collect( Collectors.toList() ) );
+            ov.setCptCodes( cpt.stream().map( cptCodeService::build ).collect( Collectors.toList() ) );
+            for ( int i = 0; i < ov.getCptCodes().size(); i++ ) {
+                ov.getCptCodes().get( i )
+                        .setId( cptCodeService.findByCode( ov.getCptCodes().get( i ).getCode() ).getId() );
+            }
+
         }
+
+        ov.setBill( new Bill( ov ) );
 
         final Patient p = (Patient) ov.getPatient();
         if ( p == null || p.getDateOfBirth() == null ) {

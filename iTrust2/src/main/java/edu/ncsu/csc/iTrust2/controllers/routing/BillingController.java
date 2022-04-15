@@ -56,4 +56,28 @@ public class BillingController {
         return "/billing/archivedCPTCodes";
     }
 
+    /**
+     * Returns the page for bills list
+     *
+     * @param model
+     *            The data for the front end
+     * @return Page to display to the user
+     */
+    @GetMapping ( "/billing/viewBills" )
+    @PreAuthorize ( "hasAnyRole('ROLE_BILLING')" )
+    public String viewBills ( final Model model ) {
+        return "/billing/viewBills";
+    }
+
+    /*
+     * Returns the page for the Pay Bills page
+     * @param model The data for the front end
+     * @return The page to display to the user
+     */
+    @GetMapping ( "/billing/payBills" )
+    @PreAuthorize ( "hasAnyRole('ROLE_BILLING')" )
+    public String payBills ( final Model model ) {
+        return "billing/payBills";
+    }
+
 }

@@ -50,14 +50,25 @@ public class APICPTCodeController extends APIController {
     public ResponseEntity addCode ( @RequestBody final CPTCodeForm form ) {
         try {
             final CPTCode c = cptService.build( form );
+            final CPTCode code = cptService.findByCode( c.getCode() );
+
+            // Checks if there is a code with the same code number already
+            // active in the database
+            if ( code != null && !code.getIsArchived() && !c.getIsArchived() ) {
+                throw new IllegalArgumentException( "Code with this number already exists." );
+            }
+            // Checks if there is a code with the same code number that was used
+            // previously and archived
+            else if ( code != null && code.getIsArchived() ) {
+                throw new IllegalArgumentException( "This code was archived and cannot be used for new codes." );
+            }
             cptService.save( c );
-            loggerUtil.log( TransactionType.CPT_CREATE, LoggerUtil.currentUser(),
-                    "Created CPT code with id " + c.getId() );
+            loggerUtil.log( TransactionType.CPT_CREATE, LoggerUtil.currentUser(), "Created CPT code " + c.getCode() );
             return new ResponseEntity( c, HttpStatus.OK );
         }
         catch ( final Exception e ) {
-            loggerUtil.log( TransactionType.CPT_CREATE, LoggerUtil.currentUser(), "Failed to create prescription" );
-            return new ResponseEntity( errorResponse( "Could not save the prescription: " + e.getMessage() ),
+            loggerUtil.log( TransactionType.CPT_CREATE, LoggerUtil.currentUser(), "Failed to create CPT code" );
+            return new ResponseEntity( errorResponse( "Could not save the CPT code: " + e.getMessage() ),
                     HttpStatus.BAD_REQUEST );
         }
     }
@@ -105,8 +116,8 @@ public class APICPTCodeController extends APIController {
     @PreAuthorize ( "hasAnyRole('ROLE_HCP', 'ROLE_BILLING')" )
     @GetMapping ( BASE_PATH + "/cptarchive/" )
     public List<CPTCode> getArchivedCodes () {
-        // Return all CPT codes in system
-        loggerUtil.log( TransactionType.CPT_VIEW, LoggerUtil.currentUser(),
+        // Return all archived CPT codes in system
+        loggerUtil.log( TransactionType.CPT_VIEW_ARCHIVED, LoggerUtil.currentUser(),
                 "User viewed a list of all archived CPT codes" );
         return cptService.findByIsArchived( true );
     }
@@ -159,8 +170,15 @@ public class APICPTCodeController extends APIController {
                 return new ResponseEntity( errorResponse( "No CPT code found matching " + c.getCode() ),
                         HttpStatus.NOT_FOUND );
             }
-            c.setId( saved.getId() );
+            if ( saved.getIsArchived() ) {
+                throw new IllegalArgumentException( "Archived codes cannot be edited." );
+            }
+            // c.setId( saved.getId() );
+            c.setVersion( saved.getVersion() + 1 );
+            saved.setIsArchived( true );
+
             cptService.save( c );
+            cptService.save( saved );
             loggerUtil.log( TransactionType.CPT_EDIT, LoggerUtil.currentUser(), "Edited CPT code " + c.getCode() );
             return new ResponseEntity( c, HttpStatus.OK );
         }

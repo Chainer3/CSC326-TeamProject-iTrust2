@@ -275,19 +275,52 @@ public enum TransactionType {
     /**
      * Admin created a new CPT code
      */
-    CPT_CREATE ( 920, "Admin created a new CPT code", true ),
+    CPT_CREATE ( 920, "User created a new CPT code", true ),
     /**
      * Admin edited an existing CPT code
      */
-    CPT_EDIT ( 921, "Admin edited an existing CPT code", true ),
+    CPT_EDIT ( 921, "User edited an existing CPT code", true ),
     /**
      * Admin deleted an existing CPT code
      */
-    CPT_ARCHIVE ( 922, "Admin archived an existing CPT code", true ),
+    CPT_ARCHIVE ( 922, "User archived an existing CPT code", true ),
     /**
      * Admin views all CPT codes in the system
      */
-    CPT_VIEW ( 923, "Admin views all CPT codes in the system", true ),
+    CPT_VIEW ( 923, "User views all CPT codes in the system", true ),
+    /**
+     * Admin views all archived CPT codes in the system
+     */
+    CPT_VIEW_ARCHIVED ( 924, "User views all archived CPT codes in the system", true ),
+
+    /**
+     * Admin added a payment to an existing bill
+     */
+    BILL_ADD_PAYMENT ( 931, "User added a payment to a bill", true ),
+    /**
+     * Admin viewed a bill in the system
+     */
+    BILL_VIEW ( 932, "User viewed a bill in the system", true ),
+    /**
+     * Admin viewed the balance of a bill in the system
+     */
+    BILL_VIEW_BALANCE ( 933, "User viewed the balance of a bill in the system", true ),
+    /**
+     * Admin viewed the status of a bill in the system
+     */
+    BILL_VIEW_STATUS ( 934, "User viewed the status of a bill in the system", true ),
+    /**
+     * Admin viewed the payments of a bill in the system
+     */
+    BILL_VIEW_PAYMENTS ( 935, "User viewed the payments of a bill in the system", true ),
+    /**
+     * User viewed their bills in the system
+     */
+    PATIENT_VIEW_BILLS ( 936, "User viewed their bills in the system", true ),
+    /**
+     * User viewed the bills of a patient in the system
+     */
+    VIEW_PATIENT_BILLS ( 937, "User viewed the bills of a patient in the system", true ),
 
     /**
      * Attempt to update password fails

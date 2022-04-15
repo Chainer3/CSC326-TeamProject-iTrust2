@@ -135,4 +135,59 @@ public class UserTest {
             // expected
         }
     }
+
+    /**
+     * Tests adding users with the new billing role. Tests both legal and
+     * illegal role combinations.
+     */
+    @Test
+    @Transactional
+    public void testBillingRole () {
+        Assert.assertEquals( "There should be no users in the system", 0, service.count() );
+
+        final User user1 = new Personnel( new UserForm( USER_1, PW, Role.ROLE_BILLING, 1 ) );
+
+        service.save( user1 );
+
+        Assert.assertEquals( "Creating a user should result in its presence in the database", 1, service.count() );
+
+        Assert.assertEquals( 1, service.findByName( USER_1 ).getRoles().size() );
+        Assert.assertTrue( service.findByName( USER_1 ).getRoles().contains( Role.ROLE_BILLING ) );
+
+        try {
+            user1.addRole( Role.ROLE_HCP );
+            Assert.fail();
+        }
+        catch ( final IllegalArgumentException e ) {
+            Assert.assertEquals( "Billing Staff Members cannot also be HCPs", e.getMessage() );
+        }
+
+        final User user2 = new Personnel( new UserForm( USER_2, PW, Role.ROLE_HCP, 1 ) );
+
+        service.save( user2 );
+        Assert.assertEquals( 2, service.count() );
+
+        try {
+            user2.addRole( Role.ROLE_BILLING );
+            Assert.fail();
+        }
+        catch ( final IllegalArgumentException e ) {
+            Assert.assertEquals( "Billing Staff Members cannot also be HCPs", e.getMessage() );
+        }
+
+        final UserForm form3 = new UserForm( USER_3, PW, Role.ROLE_BILLING, 1 );
+        form3.addRole( "ROLE_HCP" );
+        User user3 = null;
+        try {
+            user3 = new Personnel( form3 );
+            Assert.fail();
+        }
+        catch ( final IllegalArgumentException e ) {
+            Assert.assertNull( user3 );
+            Assert.assertEquals(
+                    "Tried to create a user that was a Billing Staff Member and a HCP. A user cannot be both roles!",
+                    e.getMessage() );
+        }
+
+    }
 }
