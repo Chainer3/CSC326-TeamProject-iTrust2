@@ -1,0 +1,192 @@
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:include="layout :: head(title=~{::title},links=~{::script})">
+<title>Patient View Bills</title>
+<script th:src="@{/js/dateTimeService.js}"
+	src="../js/dateTimeService.js"></script>
+<link rel="stylesheet"
+	href="https://fonts.googleapis.com/icon?family=Material+Icons">
+</head>
+<body th:include="layout :: body" th:with="content=~{::content}">
+	<div th:fragment="content">
+
+		<script th:inline="javascript">
+			/* Otherwise Thymeleaf tries to parse Javascript as XML and breaks itself sometimes.  Sigh */
+			/*<![CDATA[*/
+
+			var app = angular.module('myApp', ['dateTimeServices']);
+			app
+					.controller(
+							'patientViewBillsCtrl',
+							function($scope, $http, dateTimeService) {
+								
+								$scope.bills = [];
+								$scope.visits = [];
+								$scope.patient = "Not set yet.";
+								
+								$scope.updateBills = function () {
+									$http.get("/iTrust2/api/v1/patient").then(
+										function (response) {
+											$scope.patient = response.data;
+										}, function(rejection) {
+											$scope.patient = "Error finding patient.";
+											$scope.errorMessage = ("Could not find patient.");
+									});
+									
+									$http.get("/iTrust2/api/v1/patient/bills").then(
+										function (response) {
+											$scope.bills = response.data;
+										}, function(rejection) {
+											$scope.bills = [];
+											$scope.errorMessage = ("Could not find bills.");
+									});
+									/**
+									$scope.bills = [
+										{id: '123456', date: '04/13/2022', status: 'Paid', cost: 75, hcp: 'Dr. Chez'},
+										{id: '123457', date: '04/12/2022', status: 'Unpaid', cost: 135, hcp: 'Dr. Klarc'}
+									];
+									//$scope.bill1 = [ id = "12345", date = "04/13/2022", status = "Paid", cost = "75"];
+									//$scope.bills.push($scope.bill1);	
+									$scope.currentBill = $scope.bills[0];
+									$scope.total = 0;
+									*/
+									for(var i = 0, len = $scope.bills.length; i < len; i++) {
+										$scope.total += $scope.bills[i].totalDue;
+									}
+									
+								}
+								$scope.billDetails = function (bill) {
+									/**
+									$http.get("/iTrust2/api/v1/patient/bills/{{bill.id}}").then(
+											function (response) {
+												$scope.currentBill = response.data;
+											}, function (rejection) {
+												$scope.currentBill = "";
+												$scope.errorMessage = ("Could not find bill.");
+									});
+									*/
+									$scope.currentBill = bill;
+									//$scope.visit = $scope.currentBill.visit;
+									
+									$http.get("/iTrust2/api/v1/officevisits/myofficevisits").then(
+										function (response) {
+											$scope.visits = response.data;
+											//$scope.cpts = $scope.visit.cptCodes;
+										}, function (rejection) {
+											$scope.visits = "";
+											$scope.errorMessage = ("Could not retrieve office visits.");
+									});
+									for(var i = 0, len = $scope.visits.length; i < len; i++) {
+										if($scope.visits[i].id.equals($scope.currentBill.visit.id)) {
+											$scope.currentVisit = $scope.visits[i];
+										}
+									}
+									console.log("" + $scope.visits);
+								}
+								$scope.updateBills();
+							});
+								
+								
+
+			/*]]>*/
+		</script>
+
+		<div ng-app="myApp" ng-controller="patientViewBillsCtrl">
+			<div style="float: left; width: 50%; height: 75%; overflow-y: auto">
+				<h2>Patient View Bills</h2>
+				<table style="width: 95%"class="table table-bordered" name="bills_table">
+
+									<!-- table column headers -->
+									<thead>
+										<tr>
+											<th>Date of Visit</th>
+											<th>Status</th>
+											<th>Cost</th>
+										</tr>
+									</thead>
+
+									<!-- Bill for every row, ordered by bill id -->
+									<tbody>
+										<tr name="billTableRow" ng-repeat="l in bills | orderBy: 'date'"
+											billId={{l.id}}>
+											<td name="billCell">{{l.visit}}</td>
+											<td name="statusCell">{{l.status}}</td>
+											<td name="costCell">${{l.totalDue}}</td>
+											<td name="actionCell"><input type="button" value="View Details"
+												class="btn btn-primary" ng-click="billDetails(l)" /></td>
+										</tr>
+										<td>
+										</td>
+										<td>
+										</td>
+										<td>
+										Total: ${{total}}
+										</td>
+										
+										</tr>
+									</tbody>
+								</table>
+			
+			</div>
+			<!-- information on vertical rule found here: https://stackoverflow.com/questions/571900/is-there-a-vr-vertical-rule-in-html  -->
+			<div
+				style="float: left; width: 50%; border-left: 1px solid #bbb; padding-left: 3%; height: 75%; overflow-y: auto">
+				<h2 id="header0">Bill Details</h2>
+				<div ng-show="currentBill">
+						<div style="text-align: left; padding: 5px; font-size: 20px">
+							<b>Patient Name:</b> {{patient.firstName + " " + patient.lastName}}
+						</div>
+						<div style="text-align: left; padding: 5px; font-size: 20px">
+							<b>Date:</b> {{currentVisit.date}}
+						</div>
+						<div style="text-align: left; padding: 5px; font-size: 20px">
+							<b>HCP:</b> {{currentVisit.hcp}}
+						</div>
+						<div style="text-align: left; padding: 5px; font-size: 20px">
+							<b>Status:</b> {{currentBill.status}}
+						</div>
+
+					<br />
+
+					<table class="table table-bordered" name="cpt_table">
+
+						<!-- table column headers -->
+						<thead>
+							<tr>
+								<th>CPT Code</th>
+								<th>Description</th>
+								<th>Price</th>
+							</tr>
+						</thead>
+
+						<!-- CPT code for every row, ordered by code ascending -->
+						<tbody>
+							<tr name="cptTableRow" ng-repeat="l in cpts | orderBy: 'code'"
+								codeId={{l.id}}>
+								<td name="codeCell">{{l.code}}</td>
+								<td name="descriptionCell">{{l.description}}</td>
+								<td name="costCell">{{l.cost}}</td>
+								<td name="actionCell"><input type="button" value="Edit"
+									class="btn btn-primary" ng-click="populateCPT(l)" /> <input
+									type="button" value="Delete" class="btn btn-primary"
+									ng-click="removeCPT(l)" /></td>
+							</tr>
+							<tr>
+							<td>
+							</td>
+							<td>
+							</td>
+							<td>
+							Total: $
+							</td>
+							</tr>
+						</tbody>
+					</table>
+
+					<div name="success">{{errorMessage}}</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
