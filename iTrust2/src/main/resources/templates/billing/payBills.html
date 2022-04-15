@@ -1,0 +1,267 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="layout :: head(title=~{::title},links=~{::script})">
+<title>Billing Member: Pay Bills</title>
+<script th:src="@{/js/dateTimeService.js}"
+		src="../js/dateTimeService.js"></script>
+</head>
+<body th:include="layout :: body" th:with="content=~{::content}">
+
+	<div th:fragment="content">
+		<script th:inline="javascript">
+            var app = angular.module('myApp', ['dateTimeServices']);
+            //angular.module("cptsApp").controller('billsCtrl', function ($scope, $http, dateTimeService) {
+            app.controller('billsCtrl', function($scope, $http, dateTimeService) {
+            	
+            	// Fields to construct Patient section of bills page
+            	
+            	// The list of bills available for the billing staff member 
+            	$scope.allBills = [];
+            	
+            	// The bill selected by the billing staff member to add a payment
+            	$scope.bill = 0;
+            	
+            	// String showing what payment method is being used
+            	$scope.paymentMethod = "";
+            	
+            	// The amount input by the user
+            	$scope.paymentAmount = 0;
+            	
+            	$scope.newPayment = {
+            			"amount":0,
+            			"paymentMethod":"",
+            			"date":""
+            	};
+            	
+            	$scope.totalBill = 0;
+            	
+            	$scope.isFull = 0;
+           
+                //Updates the table with the most current data
+            	$scope.updateTable = function() {
+                    $http.get("/iTrust2/api/v1/bills").then(
+                    		$scope.newPayment.amount = 0,
+                    		function(response) {
+                                $scope.allBills = response.data;
+                    		}, function(rejection) {
+                    });
+                    $scope.bill = "";
+                    $scope.updatePaymentAmount();
+                }
+                
+                $scope.updateBills = function() {
+                	$http.get("/itrust2/api/v1/bills").then();
+                	$scope.updatePaymentAmount();
+                }
+            	
+            	//Checks for duplicate active CPT Codes
+            	$scope.duplicateCodeCheck = function() {
+                    $scope.isDuplicate = false;
+            		for (var i = 0, len = $scope.cpts.length; i < len; i++) {
+                    	if ($scope.cpt.code == $scope.cpts[i].code) {
+                            $scope.isDuplicate = true;
+                    		return $scope.isDuplicate;
+                    	}
+                    }
+            		
+            		return $scope.isDuplicate;
+            	}
+
+            	//Add CPT Code to active codes
+                $scope.addPayment = function() {
+            		if ( !$scope.bill ) {
+            			$scope.errorAdding = "Please select a bill";
+            		} else if ($scope.newPayment.amount <= 0) {
+                		$scope.errorAdding = "Could not add Payment: Payment amount must be greater than 0";
+                    } else if ( $scope.newPayment.amount > $scope.bill.totalDue) {
+                        $scope.errorAdding = "Could not add Payment: Amount must be less than the total bill";
+                    } else if (!newPayment.date == "") {
+                    	$scope.errorAdding = "Please enter a date";
+                    } else {
+                        //console.log("Correct payment");
+                        $scope.errorAdding = "";
+                        $scope.successAdding = "";
+                        $http.post("/iTrust2/api/v1/" + $scope.bill.id + "/payments/", $scope.newPayment).then(
+                            function (response) {
+                                $scope.updateTable();
+                                $scope.successAdding = "Payment added to bill";
+                            }, function (rejection) {
+                                $scope.errorAdding = "Could not add Payment";
+                            });
+                        //scope.updateTable();
+                    }
+                }
+            	
+            	/**
+            	*/
+            	$scope.showBill = function() {
+            		console.log($scope.bill);
+            		$scope.totalBill = $scope.bill.totalDue;
+            		$scope.updatePaymentAmount();
+            	}
+            	
+            	/**
+            		Updates Payment Amount input field on change
+            		Parameters:
+            			$scope.paymentMethod
+            			$scope.
+            	*/
+            	$scope.updatePaymentAmount = function() {
+            			//console.log( "Bill: " + $scope.bill );
+            			//console.log( "Payment: " + $scope.newPayment );
+            			if ( $scope.bill != 0 ) {
+            				if ( $scope.paymentMethod == 1 ) {
+            					$scope.newPayment.amount = $scope.bill.totalDue;
+            				}
+            				$scope.isFull = $scope.paymentMethod
+            			} else {
+            				$scope.isFull = 1;
+            			}
+            	}
+
+                    // update table on each page load
+                    $scope.updateTable();
+                });
+
+        </script>
+
+		<div ng-app="myApp" ng-controller="billsCtrl as crtl">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-12">
+						<div class="panel panel-primary">
+
+							<!-- active cpt's header -->
+							<div class="panel-heading">
+								<h3>Billing Member: Pay Bill</h3>
+							</div>
+							<div class="panel-body">
+							    <label>Previous Payments</label>
+								<table class="table table-bordered" name="payment_table">
+
+									<!-- table column headers -->
+									<thead>
+										<tr>
+											<th>Visit ID</th>
+											<th>Patient</th>
+											<th>Date</th>
+											<th>Action</th>
+										</tr>
+									</thead>
+
+									<!-- CPT code for every row, ordered by code ascending -->
+									<tbody>
+										<tr name="paymentTableRow" ng-repeat="p in payments | orderBy: 'date'"
+											codeId={{l.id}}>
+											<td name="codeCell">{{l.code}}</td>
+											<td name="descriptionCell">{{l.description}}</td>
+											<td name="costCell">{{l.cost}}</td>
+											<td name="actionCell"><input type="button" value="Edit"
+												    class="btn btn-primary" ng-click="editCPT(l)" />
+												<input type="button" value="Delete" class="btn btn-primary"
+												    ng-click="removeCPT(l)" /></td>
+										</tr>
+									</tbody>
+								</table>
+								<script type="text/ng-template" id="static">
+                                    <td>{{cpt.</td>
+                                </script>
+
+								<br>
+								<!-- MAKE A PAYMENT SECTION -->
+								<div class="row">
+									<div class="col-md-12">
+										<div class="panel panel-default">
+											<div class="panel-heading">Select A Bill</div>
+											<div class="panel-body">
+												<form class="form-horizontal" role="form" name="viewLogForm"
+													ng-submit="ctrl.searchByDate()">
+													<br>
+
+													<div class="row">
+
+														<!-- Choose Payment Section -->
+														<div class="col-md-5">
+															<label>Bills</label>
+															<div class="row">
+																<div class="col-md-7">
+																	<select class="form-control" name="bills" ng-change="showBill()"
+																		ng-model="bill" value={{b}} required="required" ng-options="b for bill in allBills"><!-- ng-options="b as bill.name for bill in allBills" -->
+																	</select>
+																</div>
+															</div>
+														</div>
+
+														<div class="col-md-5">
+															<label for="date">Date:</label>
+															<div class="row">
+																<div class="col-md-7">
+																	<input id="date" type="date" class="form-control" name="date"
+																		ng-model="newPayment.date" required="true" />
+																</div>
+															</div>
+														</div>
+													</div>
+													<br> <br>
+													<!-- BOX PAYMENT AMOUNT -->
+													<div class="panel panel-default">
+														<div class="panel-heading"> Make a Payment </div>
+														<div class="panel-body">
+															<label id="billheader">Bill Total</label><br>
+															<input type="text" id="billheader" ng-model="totalBill" disabled></input><br>
+															<div class="col-md-5">
+																<label>Payment Method</label><br>
+																<input type="radio" id="cash" name="payment_method" value="Cash" ng-model="newPayment.method" required="true">
+																<label for="cash">Cash</label>
+																<br>
+																<input type="radio" id="creditcard" name="payment_method" value="Credit Card" ng-model="newPayment.method">
+																<label for="creditcard">Credit Card</label>
+																<br>
+																<input type="radio" id="check" name="payment_method" value="Check" ng-model="newPayment.method">
+																<label for="check">Check</label>
+																<br>
+																<input type="radio" id="insurance" name="payment_method" value="Insurance" ng-model="newPayment.method">
+																<label for="insurance">Insurance</label>
+																<br>
+															</div>
+															<div class="col-md-5">
+																<!-- PAYMENT METHOD -->
+																<label>Payment Type</label><br>
+																	<input type="radio" id="fullpayment" name="payment_type" value=1 ng-model="paymentMethod" ng-change="updatePaymentAmount()">
+																	<label for="partialpayment">Full Payment</label>
+																	<br>
+																	<input type="radio" id="partialpayment" name="payment_type" value="" ng-model="paymentMethod" ng-change="updatePaymentAmount()">
+																	<label for="check">Partial Payment</label>
+																	<br>
+																<label>Payment Amount</label><br>
+																<input type="number" id="paymentamount" name="paymentamount" ng-model=newPayment.amount ng-disabled="isFull">
+																
+															</div>
+														</div>
+													</div>
+													<!-- SUBMIT BUTTON -->
+													<div>
+														<button class="btn btn-primary"
+															ng-click="addPayment()">Submit</button>
+													</div>
+												</form>
+												<div>
+							                        <p style="color: green" ng-model="successAdding" id="successP">{{successAdding}}</p>
+							                        <!-- <h4 style="color: red" ng-show="addCodeForm.$valid">Code doesn't meet specifications</h4>  -->
+							                        <p style="color: red" ng-model="errorAdding" id="errP">{{errorAdding}}</p>
+						                        </div>
+											</div>
+										</div>
+									</div>
+									<br /> 
+									<a style="padding-left: 30px" href="archivedCPTCodes">Archived CPT Codes</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+</body>
+
+</html>
