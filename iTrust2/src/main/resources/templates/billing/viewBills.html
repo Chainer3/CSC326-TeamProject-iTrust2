@@ -26,28 +26,40 @@
 				//Updates the table with the most current data
 				$scope.updateBills = function() {
 					$http.get("/iTrust2/api/v1/bills/").then(
-					function(response) {
-						$scope.bills = response.data;
-						$scope.message = "";
-					},
-					function(rejection) {
-						$scope.bills = [];
-						$scope.bills = "Could not display bills"
+					    function(response) {
+						    $scope.bills = response.data;
+						    $scope.message = "";
+						    $scope.selected = false;
+					    },
+					    function(rejection) {
+						    $scope.bills = [];
+						    $scope.bills = "Could not display bills"
+					});
+					$scope.updateVisits();
+				}
+				
+				$scope.updateVisits = function() {
+					$http.get("/iTrust2/api/v1/officevisits").then(
+						function(response) {
+							$scope.visits = response.data;
+							$scope.message = "";
+						},
+						function(rejection) {
+							$scope.visits = [];
+							$scope.visits = "Could not get visits";
 					});
 				}
 
 				//Shows a selected bill
-				$scope.billDetails = function(bill) {
-					var curVisit = bill.visit;
-					$scope.currentBill = bill;
-					$scope.currentBill.firstName = curVisit.patient.firstName;
-					$scope.currentBill.lastName = curVisit.patient.lastName;
-					$scope.currentBill.date = curVisit.date;
-					$scope.currentBill.hcp = curVisit.hcp.username;
-					$scope.currentBill.status = curVisit.status;
-					$scope.currentBill.cpts = curVisit.cptCodes;
+				$scope.billDetails = function (visit) {
+                    $scope.selected = true;
+					$scope.currentVisit = visit;
+					$scope.currentVisit = visit.patient.firstName;
+					$scope.currentVisit = visit.patient.lastName;
+					$scope.currentVisit = visit;
+					$scope.cpts = visit.cptCodes;
 					
-					$http.get("/iTrust2/api/v1/bills/"+ bill.id + "/balance").then(
+					$http.get("/iTrust2/api/v1/bills/"+ visit.bill.id + "/balance").then(
 						function(response) {
 							$scope.balance = response.data;
 						},
@@ -56,21 +68,10 @@
 				        });
 						console.log($scope.visits.length);
 					}
-				    $http.get("/iTrust2/api/v1/officevisits/myofficevisits").then(
-			            function (response) {
-			              $scope.visits = response.data;
-			              console.log("1. " + $scope.visits.length);
-			              $scope.errorMsg = "";
-			              $scope.total = 0;
-						  for(var i = 0, len = $scope.visits.length; i < len; i++) {
-						  		$scope.total += $scope.visits[i].bill.totalDue;
-						  }
-			            }, function (rejection) {
-			              $scope.visits = [];
-			              $scope.errorMsg = "Could not display office visits.";
-			        });
+				 
 
 				    $scope.updateBills();
+				    $scope.updateVisits();
 				});
 
 		</script>
@@ -91,8 +92,8 @@
 									<!-- table column headers -->
 									<thead>
 										<tr>
-											<th>Patient First Name</th>
-											<th>Patient Last Name</th>
+											<th>First Name</th>
+											<th>Last Name</th>
 											<th>Date of Visit</th>
 											<th>Status</th>
 											<th>Amount Due</th>
@@ -103,19 +104,22 @@
 									<!-- Bill for every row, ordered by most recent descending -->
 									<tbody>
 										<tr name="billTableRow"
-											ng-repeat="b in bills | orderBy: 'b.date'" billId={{b.id}}>
+											ng-repeat="b in visits | orderBy: 'b.date'" billId={{b.id}}>
 											<!-- ng-show="selectedBill" -->
-											<td name="firstNameCell">{{b.visit.patient.firstName}}</td>
+											<td name="firstNameCell">{{b.patient.firstName}}</td>
 											<td name="lastNameCell">{{b.patient.lastName}}</td>
 											<td name="visitDateCell">{{b.date | date: "MM/dd/yyyy"}}</td>
-											<td name="statusCell">{{b.status}}</td>
-											<td name="dueCell">{{b.balance}}</td>
+											<td name="statusCell">{{b.bill.status}}</td>
+											<td name="dueCell">{{b.bill.balance}}</td>
 											<td name="actionCell"><input type="button"
-												ng-model="currentVisit" value="View Details"
+												ng-model="selected" value="View Details"
 												class="btn btn-primary" ng-click="billDetails(b)" />
+												<input type="button" ng-model="selected" value="Hide Details"
+												class="btn btn-primary" ng-click="!currentVisit" />
+												</td>
 										</tr>
 
-										<div ng-show="currentBill">
+										<div ng-show="selected" class="ng-hide">
 											<!-- Display the information about the selected bill -->
 											<div class='panel panel-default'>
 												<div class="panel-heading">
@@ -124,29 +128,29 @@
 												<div class="panel-body">
 													<div class="row">
 														<div class="form-group col-md-2">
-															<label for="firstName">First Name:</label>  {{firstName}}
+															<label for="firstName">First Name:</label>  {{currentVisit.firstName}}
 														</div>
 														<div class="form-group col-md-2">
-															<label for="lastName">Last Name:</label>  {{lastName}}
+															<label for="lastName">Last Name:</label>  {{currentVisit.lastName}}
 														</div>
 														<div class="form-group col-md-2">
-															<label for="date">Date of Visit:</label>  {{date |
+															<label for="date">Date of Visit:</label>  {{currentVisit.date |
 															date : 'MM/dd/yyyy'}}
 														</div>
 													</div>
 													<div class="row">
 														<div class="form-group col-md-2">
-															<label for="hcp">Provider:</label>  {{hcp}}
+															<label for="hcp">Provider:</label>  {{currentVisit.hcp}}
 														</div>
 														<div class="form-group col-md-2">
-															<label for="billStatus">Status:</label>  {{status}}
+															<label for="billStatus">Status:</label>  {{currentVisit.status}}
 														</div>
 														<div class="form-group col-md-2">
-															<label for="amountDue">Balance Due:</label>  {{balance}}
+															<label for="amountDue">Balance Due:</label>  {{currentVisit.balance}}
 														</div>
 													</div>
 													<div class="row">
-														<div class="form-group col-md-3">
+														<div class="form-group col-md-2">
 													       <table class="table table-bordered" name="cpt_table">
 
 													           <!-- table column headers -->
@@ -160,7 +164,7 @@
 
 														        <!-- CPT code for every row, ordered by code ascending -->
 														        <tbody>
-														            <tr name="cptTableRow" ng-repeat="l in cpts | orderBy: 'code'"
+														            <tr name="cptTableRow" ng-repeat="l in currentBill.cpts | orderBy: 'code'"
 														                codeId={{l.id}}>
 																        <td name="codeCell">{{l.code}}</td>
 																        <td name="descriptionCell">{{l.description}}</td>
