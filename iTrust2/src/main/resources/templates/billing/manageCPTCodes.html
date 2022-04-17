@@ -138,7 +138,7 @@
 										<tr>
 											<th>CPT Code</th>
 											<th>Description</th>
-											<th>Price</th>
+											<th>Cost</th>
 											<th>Action</th>
 										</tr>
 									</thead>
@@ -149,7 +149,7 @@
 											codeId={{l.id}}>
 											<td name="codeCell">{{l.code}}</td>
 											<td name="descriptionCell">{{l.description}}</td>
-											<td name="costCell">{{l.cost}}</td>
+											<td name="costCell">${{l.cost}}</td>
 											<td name="actionCell"><input type="button" value="Edit"
 												    class="btn btn-primary" ng-click="populateCPT(l)" />
 												<input type="button" value="Delete" class="btn btn-primary"
