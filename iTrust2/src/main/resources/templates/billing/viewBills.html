@@ -124,7 +124,7 @@
 											<td name="lastNameCell">{{b.patient.lastName}}</td>
 											<td name="visitDateCell">{{b.date | date: "MM/dd/yyyy"}}</td>
 											<td name="statusCell">{{b.bill.status}}</td>
-											<td name="dueCell">{{b.bill.balance}}</td>
+											<td name="dueCell">${{b.bill.balance}}</td>
 											<td name="actionCell"><input type="button"
 												ng-model="selected" value="View Details"
 												class="btn btn-primary" ng-click="billDetails(b)" /> <input
@@ -166,7 +166,7 @@
 													<label for="billStatus">Status:</label> {{status}}
 												</div>
 												<div class="form-group col-md-2">
-													<label for="amountDue">Balance Due:</label> {{balance}}
+													<label for="amountDue">Balance Due:</label> ${{balance}}
 												</div>
 												<!-- <div class="form-group col-md-4">
 													<label for="date">Hospital Address:</label> {{hAddress}}
